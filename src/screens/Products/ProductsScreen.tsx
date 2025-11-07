@@ -1,61 +1,174 @@
-import React from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '../../navigation/AppNavigator';
+import React, { useState } from "react";
+import { FlatList } from "react-native";
+import styled from "styled-components/native";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../../types/navigation";
+import NavigationBar from "../../UI/NavigationBar";
 
-type ProductsNavProp = NativeStackNavigationProp<RootStackParamList, 'Products'>;
+export interface Product {
+  id: string;
+  name: string;
+  price: number;
+  image?: string;
+}
 
-const products = [
-  { id: '1', name: 'Camisa ', price: 99.9 },
-  { id: '2', name: 'Calça ', price: 149.9 },
-  { id: '3', name: 'Tênis ', price: 299.9 },
-];
+type ProductsScreenNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  "Products"
+>;
 
 export default function ProductsScreen() {
-  const navigation = useNavigation<ProductsNavProp>();
-
-  const handleProductPress = (product: any) => {
-    navigation.navigate('ProductDetails', { product });
-  };
+  const navigation = useNavigation<ProductsScreenNavigationProp>();
+  const [search, setSearch] = useState("");
+  const [products] = useState<Product[]>([
+    { id: "1", name: "Produto 1", price: 23.99, image: "https://via.placeholder.com/100" },
+    { id: "2", name: "Produto 2", price: 23.99, image: "https://via.placeholder.com/100" },
+    { id: "3", name: "Produto 3", price: 23.99, image: "https://via.placeholder.com/100" },
+    { id: "4", name: "Produto 4", price: 23.99, image: "https://via.placeholder.com/100" },
+    { id: "5", name: "Produto 5", price: 23.99, image: "https://via.placeholder.com/100" },
+    { id: "6", name: "Produto 6", price: 23.99, image: "https://via.placeholder.com/100" },
+  ]);
 
   return (
-    <View style={styles.container}>
+    <Container>
+      <Header>Produtos</Header>
+
+      <SearchContainer>
+        <SearchInput
+          placeholder="Pesquisar"
+          placeholderTextColor="#999"
+          value={search}
+          onChangeText={setSearch}
+        />
+      </SearchContainer>
+
       <FlatList
-        data={products}
+        data={products.filter((p) =>
+          p.name.toLowerCase().includes(search.toLowerCase())
+        )}
         keyExtractor={(item) => item.id}
+        numColumns={2}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 140 }} 
         renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.card}
-            onPress={() => handleProductPress(item)}
+          <ProductCard
+            onPress={() =>
+              navigation.navigate("ProductDetails", { product: item })
+            }
           >
-            <Text style={styles.name}>{item.name}</Text>
-            <Text style={styles.price}>R$ {item.price.toFixed(2)}</Text>
-          </TouchableOpacity>
+            <ProductImage source={{ uri: item.image }}/>
+            <ProductName>{item.name}</ProductName>
+            <ProductPrice>R$ {item.price.toFixed(2)}</ProductPrice>
+          </ProductCard>
         )}
       />
-    </View>
+
+      <AddButton onPress={() => navigation.navigate("CreateProduct")}>
+        <AddButtonText>+</AddButtonText>
+      </AddButton>
+    <NavigationBar />
+
+    </Container>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: '#fff',
-  },
-  card: {
-    backgroundColor: '#f4f4f4',
-    padding: 16,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  name: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  price: {
-    marginTop: 5,
-    color: '#555',
-  },
-});
+const Container = styled.SafeAreaView`
+  flex: 1;
+  background-color: #fff;
+  padding: 16px;
+`;
+
+const Header = styled.Text`
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 12px;
+`;
+
+const SearchContainer = styled.View`
+  background-color: #f5f5f5;
+  flex-direction: row;
+  align-items: center;
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+`;
+
+const SearchInput = styled.TextInput`
+  flex: 1;
+  color: #333;
+  font-size: 16px;
+`;
+
+const ProductCard = styled.TouchableOpacity`
+  flex: 1;
+  background-color: #f4f7fb;
+  border-radius: 12px;
+  margin: 6px;
+  padding: 12px;
+  align-items: center;
+`;
+
+const ProductImage = styled.Image`
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  background-color: #dfe8f5;
+`;
+
+const ProductName = styled.Text`
+  font-size: 14px;
+  color: #222;
+`;
+
+const ProductPrice = styled.Text`
+  font-size: 15px;
+  font-weight: 700;
+  margin-top: 4px;
+`;
+
+const AddButton = styled.TouchableOpacity`
+  position: absolute;
+  bottom: 70px; 
+  right: 24px;
+  background-color: #007aff;
+  width: 56px;
+  height: 56px;
+  border-radius: 28px;
+  justify-content: center;
+  align-items: center;
+`;
+
+const AddButtonText = styled.Text`
+  font-size: 32px;
+  color: #fff;
+  margin-top: -4px;
+`;
+
+const BottomNavbar = styled.View`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background-color: #fff;
+  flex-direction: row;
+  border-top-width: 1px;
+  border-top-color: #ccc;
+  justify-content: space-around;
+  align-items: center;
+`;
+
+const NavButton = styled.TouchableOpacity`
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+`;
+
+const NavText = styled.Text`
+  font-size: 16px;
+  color: #007aff;
+  font-weight: 600;
+`;

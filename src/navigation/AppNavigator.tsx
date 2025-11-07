@@ -7,13 +7,10 @@ import {
 import HomeScreen from '../screens/HomeScreen';
 import ProductsScreen from '../screens/Products/ProductsScreen';
 import ProductDetailsScreen from '../screens/Products/ProductDetails';
-
-export type RootStackParamList = {
-  Home: undefined;
-  About: undefined;  
-  Products: undefined;
-  ProductDetails: { product: any };
-};
+import CreateProduct from "../screens/Products/CreateProduct";
+import { RootStackParamList } from '../types/navigation';
+import OrdersScreen from '../screens/Orders/OrderScreen';
+import ClientsScreen from '../screens/Clients/ClientScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -24,18 +21,21 @@ export default function AppNavigator() {
         <Stack.Screen
           name="Home"
           component={HomeScreen}
-          options={{ title: 'Início' }}
+          options={{ headerShown: false}}
         />
             <Stack.Screen
         name="Products"
         component={ProductsScreen}
-        options={{ title: 'Produtos' }}
+        options={{ headerShown: false}}
       />
   <Stack.Screen
         name="ProductDetails"
         component={ProductDetailsScreen}
-        options={{ title: 'Detalhes do Produto' }}
+        options={{ headerShown: false }}
       />
+       <Stack.Screen name="CreateProduct" component={CreateProduct}  options={{ headerShown: false }} /> 
+       <Stack.Screen name="Orders" component={OrdersScreen }  options={{ headerShown: false }} />
+        <Stack.Screen name="Clients" component={ClientsScreen}  options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

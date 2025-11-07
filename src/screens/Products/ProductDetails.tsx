@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, Button } from 'react-native';
+import styled from 'styled-components/native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
-import type { RootStackParamList } from '../../navigation/AppNavigator';
+import type { RootStackParamList } from '../../types/navigation';
 
 type ProductDetailsRouteProp = RouteProp<RootStackParamList, 'ProductDetails'>;
 
@@ -12,41 +12,64 @@ export default function ProductDetailsScreen() {
   const { product } = route.params;
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{product.name}</Text>
-      <Text style={styles.price}>Preço: R$ {product.price.toFixed(2)}</Text>
-      <Text style={styles.description}>
-        Descrição: Produto de alta qualidade da linha Vidya 
-      </Text>
+    <Container>
+      {product.image && <ProductImage source={{ uri: product.image }} />}
 
-      <View style={styles.buttonContainer}>
-        <Button title="Voltar" onPress={() => navigation.goBack()} />
-      </View>
-    </View>
+      <Title>{product.name}</Title>
+      <Price>R$ {product.price.toFixed(2)}</Price>
+      <Description>
+        Descrição: Produto de alta qualidade da linha Vidya
+      </Description>
+
+      <ButtonContainer onPress={() => navigation.goBack()}>
+        <ButtonText>Voltar</ButtonText>
+      </ButtonContainer>
+    </Container>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  price: {
-    fontSize: 18,
-    color: '#007AFF',
-    marginBottom: 15,
-  },
-  description: {
-    fontSize: 16,
-    color: '#333',
-  },
-  buttonContainer: {
-    marginTop: 20,
-  },
-});
+// 🎨 Estilização com styled-components
+const Container = styled.ScrollView`
+  flex: 1;
+  background-color: #fff;
+  padding: 20px;
+`;
+
+const ProductImage = styled.Image`
+  width: 100%;
+  height: 200px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  background-color: #dfe8f5;
+`;
+
+const Title = styled.Text`
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+`;
+
+const Price = styled.Text`
+  font-size: 18px;
+  color: #007aff;
+  margin-bottom: 15px;
+`;
+
+const Description = styled.Text`
+  font-size: 16px;
+  color: #333;
+`;
+
+const ButtonContainer = styled.TouchableOpacity`
+  margin-top: 20px;
+  background-color: #007aff;
+  padding: 12px;
+  border-radius: 8px;
+  align-items: center;
+`;
+
+const ButtonText = styled.Text`
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+`;
