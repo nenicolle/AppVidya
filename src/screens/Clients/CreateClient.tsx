@@ -295,7 +295,7 @@ export default function CreateClient() {
 
       <Footer>
         <SaveButton onPress={handleSubmit(onSubmit)} disabled={isSubmitting}>
-          <SaveText>{isSubmitting ? 'Salvando...' : 'Salvar Cliente'}</SaveText>
+          <SaveText>{isSubmitting ? 'Salvando...' : 'Salvar'}</SaveText>
         </SaveButton>
       </Footer>
     </Container>
@@ -312,8 +312,8 @@ const Header = styled.View`
   justify-content: center;
   padding: 20px 20px 16px;
   position: relative;
-  border-bottom-width: 1px;
-  border-bottom-color: #eee;
+  /* border-bottom-width: 1px; */
+  /* border-bottom-color: #eee; */
 `;
 const BackButton = styled.TouchableOpacity`
   position: absolute;

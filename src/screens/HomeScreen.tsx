@@ -8,10 +8,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 export default function HomeScreen({ navigation }: Props) {
   return (
     <View style={styles.container}>
-      <Button
-        title="Entrar"
-        onPress={() => navigation.navigate('Products')}
-      />
+      <Button title="Entrar" onPress={() => navigation.navigate('Products')} />
     </View>
   );
 }

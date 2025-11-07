@@ -1,101 +1,111 @@
-import React, { useState } from "react";
-import { Alert, TextInputProps, TouchableOpacity } from "react-native";
-import styled from "styled-components/native";
-import { useNavigation } from "@react-navigation/native";
-import {  CameraIcon, ChevronLeft } from "lucide-react-native";
-
+import React, { useState } from 'react';
+import { Alert, TextInputProps, TouchableOpacity } from 'react-native';
+import styled from 'styled-components/native';
+import { useNavigation } from '@react-navigation/native';
+import { CameraIcon, ChevronLeft } from 'lucide-react-native';
 
 export default function CreateProduct() {
   const navigation = useNavigation();
-  const [name, setName] = useState("");
-  const [price, setPrice] = useState("");
-  const [description, setDescription] = useState("");
-  const [image, setImage] = useState<string | null>(null);
+  const [name, setName] = useState('');
+  const [price, setPrice] = useState('');
+  const [description, setDescription] = useState('');
+  // const [image, setImage] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSave = () => {
     if (!name || !price) {
-      Alert.alert("Atenção", "Preencha o nome e o preço do produto.");
+      Alert.alert('Atenção', 'Preencha o nome e o preço do produto.');
       return;
     }
-    Alert.alert("Sucesso", "Produto cadastrado com sucesso!");
-    navigation.goBack();
-  };
 
+    setIsSubmitting(true);
+
+    // Simulando uma requisição
+    setTimeout(() => {
+      Alert.alert('Sucesso', 'Produto cadastrado com sucesso!');
+      setIsSubmitting(false);
+      navigation.goBack();
+    }, 1000);
+  };
   const handleUpload = () => {
-    Alert.alert("Upload", "SELETOR DE IMAGEM AQUI");
+    Alert.alert('Upload', 'SELETOR DE IMAGEM AQUI');
   };
 
   return (
     <Container>
       <Header>
         <BackButton onPress={() => navigation.goBack()}>
-          <ChevronLeft  size={22} />
+          <ChevronLeft size={22} />
         </BackButton>
         <HeaderTitle>Cadastro de produto</HeaderTitle>
       </Header>
 
-      <Label>Nome</Label>
-      <Input
-        placeholder="Digite o nome do produto"
-        value={name}
-        onChangeText={setName}
-      />
+      <Content>
+        <Label>Nome</Label>
+        <Input placeholder="Digite o nome do produto" value={name} onChangeText={setName} />
 
-      <Label>Preço</Label>
-      <Input
-        placeholder="0,00"
-        keyboardType="numeric"
-        value={price}
-        onChangeText={setPrice}
-      />
+        <Label>Preço</Label>
+        <Input placeholder="0,00" keyboardType="numeric" value={price} onChangeText={setPrice} />
 
-      <Label>Descrição</Label>
-      <TextArea
-        multiline
-        numberOfLines={4}
-        textAlignVertical="top"
-        placeholder="Adicione uma descrição"
-        value={description}
-        onChangeText={setDescription}
-      />
+        <Label>Descrição</Label>
+        <TextArea
+          multiline
+          numberOfLines={4}
+          textAlignVertical="top"
+          placeholder="Adicione uma descrição"
+          value={description}
+          onChangeText={setDescription}
+        />
 
-      <Label>Foto do produto</Label>
-      <UploadContainer>
-        <TouchableOpacity onPress={handleUpload}>
-          <UploadButton>
-          <CameraIcon  size={24}  />
+        <Label>Foto do produto</Label>
+        <UploadContainer>
+          <TouchableOpacity onPress={handleUpload}>
+            <UploadButton>
+              <CameraIcon size={24} />
+              <UploadText>Faça o upload da foto</UploadText>
+            </UploadButton>
+          </TouchableOpacity>
+          <UploadHint>JPG e PNG, somente</UploadHint>
+        </UploadContainer>
+      </Content>
 
-            <UploadText>Faça o upload da foto</UploadText>
-          </UploadButton>
-        </TouchableOpacity>
-        <UploadHint>JPG e PNG, somente</UploadHint>
-      </UploadContainer>
-
-      <SaveButton onPress={handleSave}>
-        <SaveText>Salvar</SaveText>
-      </SaveButton>
+      <Footer>
+        <SaveButton onPress={handleSave} disabled={isSubmitting}>
+          <SaveText>{isSubmitting ? 'Salvando...' : 'Salvar'}</SaveText>
+        </SaveButton>
+      </Footer>
     </Container>
   );
 }
 
-const Container = styled.ScrollView`
+const Container = styled.View`
   flex: 1;
   background-color: #fff;
+`;
+
+const Content = styled.ScrollView`
+  flex: 1;
   padding: 20px;
+`;
+const Footer = styled.View`
+  padding: 20px;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
 `;
 
 const Header = styled.View`
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  margin-bottom: 24px;
+  padding: 20px 20px 16px;
+  position: relative;
 `;
-
 const BackButton = styled.TouchableOpacity`
   position: absolute;
-  left: 0;
+  left: 20px;
+  padding: 8px;
 `;
-
 const HeaderTitle = styled.Text`
   font-size: 18px;
   font-weight: 700;

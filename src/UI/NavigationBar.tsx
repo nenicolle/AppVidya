@@ -3,6 +3,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 import styled from 'styled-components/native';
+import { Handbag, Store, User } from 'lucide-react-native';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -12,21 +13,24 @@ const NavigationBar = () => {
   return (
     <Container>
       <NavButton onPress={() => navigation.navigate('Orders')}>
+        <Handbag />
         <NavText>Pedidos</NavText>
       </NavButton>
 
       <NavButton onPress={() => navigation.navigate('Clients')}>
+        <User />
         <NavText>Clientes</NavText>
       </NavButton>
 
       <NavButton onPress={() => navigation.navigate('Products')}>
+        <Store />
         <NavText>Produtos</NavText>
       </NavButton>
     </Container>
   );
 };
 
-export default NavigationBar; 
+export default NavigationBar;
 
 const Container = styled.View`
   flex-direction: row;
@@ -34,8 +38,6 @@ const Container = styled.View`
   align-items: center;
   background-color: #ffffff;
   padding-vertical: 12px;
-  border-top-width: 1px;
-  border-top-color: #eeeeee;
   position: absolute;
   bottom: 0;
   left: 0;

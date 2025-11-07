@@ -22,10 +22,7 @@ const OrdersScreen = () => {
         <Title>Pedidos</Title>
       </Header>
 
-      <OrdersList
-        orders={orders}
-        onOrderPress={handleOrderPress}
-      />
+      <OrdersList orders={orders} onOrderPress={handleOrderPress} />
 
       <NavigationBar />
     </Container>
@@ -38,15 +35,16 @@ const Container = styled.View`
   flex: 1;
   background-color: #f9f9f9;
 `;
-
 const Header = styled.View`
-  padding: 20px;
-  background-color: #fff;
-  elevation: 2;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 20px 16px;
+  position: relative;
 `;
 
 const Title = styled.Text`
-  font-size: 24px;
-  font-weight: bold;
+  font-size: 18px;
+  font-weight: 700;
   color: #333;
 `;

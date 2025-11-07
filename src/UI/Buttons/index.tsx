@@ -1,8 +1,8 @@
-import styled from "styled-components/native";
+import styled from 'styled-components/native';
 
 export const AddButton = styled.TouchableOpacity`
   position: absolute;
-  bottom: 70px; 
+  bottom: 100px;
   right: 24px;
   background-color: #007aff;
   width: 56px;
@@ -12,7 +12,7 @@ export const AddButton = styled.TouchableOpacity`
   align-items: center;
 `;
 
-export  const AddButtonText = styled.Text`
+export const AddButtonText = styled.Text`
   font-size: 32px;
   color: #fff;
   margin-top: -4px;

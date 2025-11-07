@@ -2,41 +2,57 @@ import React, { useState } from 'react';
 import { FlatList, ActivityIndicator } from 'react-native';
 import styled from 'styled-components/native';
 import { Client } from '../../types/client';
+import { Search } from 'lucide-react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../types/navigation'; // seu tipo de navegação
 
 interface ClientsListProps {
   clients: Client[];
   loading?: boolean;
-  onClientPress: (client: Client) => void;
 }
 
-const ClientsList: React.FC<ClientsListProps> = ({ clients, loading, onClientPress }) => {
+const ClientsList = ({ clients, loading }: ClientsListProps) => {
   const [search, setSearch] = useState('');
 
-  const filteredClients = clients.filter(client =>
-    client.name.toLowerCase().includes(search.toLowerCase()) ||
-    client.email.toLowerCase().includes(search.toLowerCase())
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+  const filteredClients = clients.filter(
+    (client) =>
+      client.name.toLowerCase().includes(search.toLowerCase()) ||
   );
 
+  const handleClientPress = (client: Client) => {
+    navigation.navigate('ClientDetails', { client });
+  };
+
   if (loading) {
-    return <LoadingContainer><ActivityIndicator size="large" color="#007bff" /></LoadingContainer>;
+    return (
+      <LoadingContainer>
+        <ActivityIndicator size="large" color="#007bff" />
+      </LoadingContainer>
+    );
   }
 
   return (
     <Container>
-      <SearchInput
-        placeholder="Buscar cliente..."
-        value={search}
-        onChangeText={setSearch}
-      />
-
+      <SearchContainer>
+        <Search size={24} color="#333" />
+        <SearchInput
+          placeholder="Buscar cliente..."
+          placeholderTextColor="#999"
+          value={search}
+          onChangeText={setSearch}
+        />
+      </SearchContainer>
       <FlatList
+        contentContainerStyle={{ paddingBottom: 100 }}
         data={filteredClients}
-        keyExtractor={item => item.id.toString()}
+        keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <ClientItem onPress={() => onClientPress(item)}>
+          <ClientItem onPress={() => handleClientPress(item)}>
             <ClientInfo>
               <ClientName>{item.name}</ClientName>
-              <ClientEmail>{item.email}</ClientEmail>
               <ClientPhone>{item.phone}</ClientPhone>
             </ClientInfo>
           </ClientItem>
@@ -49,20 +65,25 @@ const ClientsList: React.FC<ClientsListProps> = ({ clients, loading, onClientPre
 
 export default ClientsList;
 
-const Container = styled.View`
+const Container = styled.SafeAreaView`
   flex: 1;
-  background-color: #f9f9f9;
+  background-color: #fff;
 `;
 
+const SearchContainer = styled.View`
+  background-color: #f9f9f9;
+  flex-direction: row;
+  align-items: center;
+  border-radius: 12px;
+  padding: 0px 14px;
+  height: 40px;
+  margin-bottom: 20px;
+`;
 const SearchInput = styled.TextInput`
-  background-color: #fff;
-  padding: 12px;
-  margin: 16px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
+  flex: 1;
+  color: #333;
   font-size: 16px;
 `;
-
 const ClientItem = styled.TouchableOpacity`
   background-color: #fff;
   margin-horizontal: 16px;
@@ -80,11 +101,7 @@ const ClientName = styled.Text`
   color: #333;
 `;
 
-const ClientEmail = styled.Text`
-  font-size: 14px;
-  color: #555;
-  margin-top: 4px;
-`;
+
 
 const ClientPhone = styled.Text`
   font-size: 13px;

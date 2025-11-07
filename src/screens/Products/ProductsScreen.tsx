@@ -1,11 +1,12 @@
-import React, { useState } from "react";
-import { FlatList } from "react-native";
-import styled from "styled-components/native";
-import { useNavigation } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../../types/navigation";
-import NavigationBar from "../../UI/NavigationBar";
-import { AddButton, AddButtonText } from "../../UI/Buttons";
+import React, { useState } from 'react';
+import { FlatList } from 'react-native';
+import styled from 'styled-components/native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../types/navigation';
+import NavigationBar from '../../UI/NavigationBar';
+import { AddButton, AddButtonText } from '../../UI/Buttons';
+import { Search } from 'lucide-react-native';
 
 export interface Product {
   id: string;
@@ -14,21 +15,18 @@ export interface Product {
   image?: string;
 }
 
-type ProductsScreenNavigationProp = NativeStackNavigationProp<
-  RootStackParamList,
-  "Products"
->;
+type ProductsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Products'>;
 
 export default function ProductsScreen() {
   const navigation = useNavigation<ProductsScreenNavigationProp>();
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [products] = useState<Product[]>([
-    { id: "1", name: "Produto 1", price: 23.99, image: "https://via.placeholder.com/100" },
-    { id: "2", name: "Produto 2", price: 23.99, image: "https://via.placeholder.com/100" },
-    { id: "3", name: "Produto 3", price: 23.99, image: "https://via.placeholder.com/100" },
-    { id: "4", name: "Produto 4", price: 23.99, image: "https://via.placeholder.com/100" },
-    { id: "5", name: "Produto 5", price: 23.99, image: "https://via.placeholder.com/100" },
-    { id: "6", name: "Produto 6", price: 23.99, image: "https://via.placeholder.com/100" },
+    { id: '1', name: 'Produto 1', price: 200.99, image: 'https://via.placeholder.com/100' },
+    { id: '2', name: 'Produto 2', price: 2663.99, image: 'https://via.placeholder.com/100' },
+    { id: '3', name: 'Produto 3', price: 3.99, image: 'https://via.placeholder.com/100' },
+    { id: '4', name: 'Produto 4', price: 24.99, image: 'https://via.placeholder.com/100' },
+    { id: '5', name: 'Produto 5', price: 23.99, image: 'https://via.placeholder.com/100' },
+    { id: '6', name: 'Produto 6', price: 21233.99, image: 'https://via.placeholder.com/100' },
   ]);
 
   return (
@@ -36,8 +34,9 @@ export default function ProductsScreen() {
       <Header>Produtos</Header>
 
       <SearchContainer>
+        <Search size={24} color="#333" />
         <SearchInput
-          placeholder="Pesquisar"
+          placeholder="Pesquisar produto..."
           placeholderTextColor="#999"
           value={search}
           onChangeText={setSearch}
@@ -45,31 +44,26 @@ export default function ProductsScreen() {
       </SearchContainer>
 
       <FlatList
-        data={products.filter((p) =>
-          p.name.toLowerCase().includes(search.toLowerCase())
-        )}
+        data={products.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))}
         keyExtractor={(item) => item.id}
         numColumns={2}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 140 }} 
+        contentContainerStyle={{ paddingBottom: 100 }}
         renderItem={({ item }) => (
-          <ProductCard
-            onPress={() =>
-              navigation.navigate("ProductDetails", { product: item })
-            }
-          >
-            <ProductImage source={{ uri: item.image }}/>
-            <ProductName>{item.name}</ProductName>
-            <ProductPrice>R$ {item.price.toFixed(2)}</ProductPrice>
+          <ProductCard onPress={() => navigation.navigate('ProductDetails', { product: item })}>
+            <ProductImage source={{ uri: item.image }} />
+            <ProductInformation>
+              <ProductName>{item.name}</ProductName>
+              <ProductPrice>R$ {item.price.toFixed(2)}</ProductPrice>
+            </ProductInformation>
           </ProductCard>
         )}
       />
 
-      <AddButton onPress={() => navigation.navigate("CreateProduct")}>
+      <AddButton onPress={() => navigation.navigate('CreateProduct')}>
         <AddButtonText>+</AddButtonText>
       </AddButton>
-    <NavigationBar />
-
+      <NavigationBar />
     </Container>
   );
 }
@@ -79,7 +73,12 @@ const Container = styled.SafeAreaView`
   background-color: #fff;
   padding: 16px;
 `;
-
+const ProductInformation = styled.View`
+  flex: 1;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 10px 15px;
+`;
 const Header = styled.Text`
   font-size: 18px;
   font-weight: 700;
@@ -88,11 +87,12 @@ const Header = styled.Text`
 `;
 
 const SearchContainer = styled.View`
-  background-color: #f5f5f5;
+  background-color: #f9f9f9;
   flex-direction: row;
   align-items: center;
   border-radius: 12px;
-  padding: 10px 14px;
+  padding: 00px 14px;
+  height: 40px;
   margin-bottom: 16px;
 `;
 
@@ -107,15 +107,16 @@ const ProductCard = styled.TouchableOpacity`
   background-color: #f4f7fb;
   border-radius: 12px;
   margin: 6px;
-  padding: 12px;
-  align-items: center;
+  /* padding: 15px; */
+  align-items: start;
 `;
 
 const ProductImage = styled.Image`
-  width: 80px;
+  width: 100%;
   height: 80px;
   border-radius: 8px;
-  margin-bottom: 8px;
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
   background-color: #dfe8f5;
 `;
 
@@ -129,7 +130,6 @@ const ProductPrice = styled.Text`
   font-weight: 700;
   margin-top: 4px;
 `;
-
 
 const BottomNavbar = styled.View`
   position: absolute;
