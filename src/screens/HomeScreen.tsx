@@ -3,16 +3,15 @@ import { View, Text, Button, StyleSheet } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/AppNavigator';
 
-// 🔹 Pega os tipos diretamente do AppNavigator
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 export default function HomeScreen({ navigation }: Props) {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>🏠 Tela Inicial</Text>
+      <Text style={styles.title}> Tela Inicial</Text>
       <Button
         title="Ir para Sobre"
-        onPress={() => navigation.navigate('About')}
+        onPress={() => navigation.navigate('Products')}
       />
     </View>
   );

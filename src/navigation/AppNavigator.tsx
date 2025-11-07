@@ -5,12 +5,14 @@ import {
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
 import HomeScreen from '../screens/HomeScreen';
-// import AboutScreen from '../screens/AboutScreen';
+import ProductsScreen from '../screens/Products/ProductsScreen';
+import ProductDetailsScreen from '../screens/Products/ProductDetails';
 
-// 🔹 Tipos de rotas (muito importante!)
 export type RootStackParamList = {
   Home: undefined;
-  About: undefined;
+  About: undefined;  
+  Products: undefined;
+  ProductDetails: { product: any };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -24,11 +26,16 @@ export default function AppNavigator() {
           component={HomeScreen}
           options={{ title: 'Início' }}
         />
-        {/* <Stack.Screen
-          name="About"
-          component={AboutScreen}
-          options={{ title: 'Sobre' }}
-        /> */}
+            <Stack.Screen
+        name="Products"
+        component={ProductsScreen}
+        options={{ title: 'Produtos' }}
+      />
+  <Stack.Screen
+        name="ProductDetails"
+        component={ProductDetailsScreen}
+        options={{ title: 'Detalhes do Produto' }}
+      />
       </Stack.Navigator>
     </NavigationContainer>
   );
