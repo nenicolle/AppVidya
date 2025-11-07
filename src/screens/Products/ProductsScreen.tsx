@@ -5,6 +5,7 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../types/navigation";
 import NavigationBar from "../../UI/NavigationBar";
+import { AddButton, AddButtonText } from "../../UI/Buttons";
 
 export interface Product {
   id: string;
@@ -129,23 +130,6 @@ const ProductPrice = styled.Text`
   margin-top: 4px;
 `;
 
-const AddButton = styled.TouchableOpacity`
-  position: absolute;
-  bottom: 70px; 
-  right: 24px;
-  background-color: #007aff;
-  width: 56px;
-  height: 56px;
-  border-radius: 28px;
-  justify-content: center;
-  align-items: center;
-`;
-
-const AddButtonText = styled.Text`
-  font-size: 32px;
-  color: #fff;
-  margin-top: -4px;
-`;
 
 const BottomNavbar = styled.View`
   position: absolute;

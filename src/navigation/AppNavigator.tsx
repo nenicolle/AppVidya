@@ -11,6 +11,7 @@ import CreateProduct from "../screens/Products/CreateProduct";
 import { RootStackParamList } from '../types/navigation';
 import OrdersScreen from '../screens/Orders/OrderScreen';
 import ClientsScreen from '../screens/Clients/ClientScreen';
+import CreateClient from '../screens/Clients/CreateClient';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -35,7 +36,8 @@ export default function AppNavigator() {
       />
        <Stack.Screen name="CreateProduct" component={CreateProduct}  options={{ headerShown: false }} /> 
        <Stack.Screen name="Orders" component={OrdersScreen }  options={{ headerShown: false }} />
-        <Stack.Screen name="Clients" component={ClientsScreen}  options={{ headerShown: false }} />
+      <Stack.Screen name="Clients" component={ClientsScreen}  options={{ headerShown: false }} />
+      <Stack.Screen name="CreateClient" component={CreateClient}  options={{ headerShown: false }}  />
       </Stack.Navigator>
     </NavigationContainer>
   );
