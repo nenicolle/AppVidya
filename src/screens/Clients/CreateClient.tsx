@@ -132,7 +132,10 @@ export default function CreateClient() {
         <HeaderTitle>Cadastro de Cliente</HeaderTitle>
       </Header>
 
-      <ScrollContainer>
+      <ScrollContainer
+        contentContainerStyle={{ paddingBottom: 20 }}
+        // keyboardShouldPersistTaps="handled"
+      >
         <PhotoContainer>
           <TouchableOpacity onPress={handleUpload}>
             <PhotoPlaceholder>
@@ -171,25 +174,10 @@ export default function CreateClient() {
                   borderWidth: 1,
                   borderColor: '#e1e1e1',
                   borderRadius: 8,
-                  padding: 12,
+                  paddingLeft: 12,
                   fontSize: 16,
+                  height: 40,
                 }}
-              />
-            )}
-          />
-        </FormField>
-
-        <FormField label="E-mail" error={errors.email?.message}>
-          <Controller
-            control={control}
-            name="email"
-            render={({ field }) => (
-              <Input
-                placeholder="cliente@exemplo.com"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                value={field.value}
-                onChangeText={field.onChange}
               />
             )}
           />
@@ -217,8 +205,9 @@ export default function CreateClient() {
                   borderWidth: 1,
                   borderColor: '#e1e1e1',
                   borderRadius: 8,
-                  padding: 12,
+                  paddingLeft: 12,
                   fontSize: 16,
+                  height: 40,
                 }}
               />
             )}
@@ -246,8 +235,9 @@ export default function CreateClient() {
                   borderWidth: 1,
                   borderColor: '#e1e1e1',
                   borderRadius: 8,
-                  padding: 12,
+                  paddingLeft: 12,
                   fontSize: 16,
+                  height: 40,
                 }}
               />
             )}
@@ -328,6 +318,7 @@ const HeaderTitle = styled.Text`
 const ScrollContainer = styled.ScrollView`
   flex: 1;
   padding: 20px;
+  padding-bottom: 240px;
 `;
 const PhotoContainer = styled.View`
   align-items: center;
@@ -356,13 +347,15 @@ const Label = styled.Text`
 const Input = styled.TextInput`
   border: 1px solid #e1e1e1;
   border-radius: 8px;
-  padding: 12px;
+  padding-left: 12px;
   font-size: 16px;
+  height: 40px;
 `;
 const PickerContainer = styled.View`
   border: 1px solid #e1e1e1;
   border-radius: 8px;
   overflow: hidden;
+  height: 40px;
 `;
 const ErrorText = styled.Text`
   color: #e74c3c;
@@ -372,8 +365,6 @@ const ErrorText = styled.Text`
 const Footer = styled.View`
   padding: 20px;
   background: #fff;
-  border-top-width: 1px;
-  border-top-color: #eee;
 `;
 const SaveButton = styled.TouchableOpacity<{ disabled?: boolean }>`
   background: #007aff;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useNavigationState } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 import styled from 'styled-components/native';
@@ -9,22 +9,23 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const NavigationBar = () => {
   const navigation = useNavigation<NavigationProp>();
+  const currentRoute = useNavigationState((state) => state.routes[state.index].name);
 
   return (
     <Container>
       <NavButton onPress={() => navigation.navigate('Orders')}>
-        <Handbag />
-        <NavText>Pedidos</NavText>
+        <Handbag color={currentRoute === 'Orders' ? '#007AFF' : '#888'} />
+        <NavText active={currentRoute === 'Orders'}>Pedidos</NavText>
       </NavButton>
 
       <NavButton onPress={() => navigation.navigate('Clients')}>
-        <User />
-        <NavText>Clientes</NavText>
+        <User color={currentRoute === 'Clients' ? '#007AFF' : '#888'} />
+        <NavText active={currentRoute === 'Clients'}>Clientes</NavText>
       </NavButton>
 
       <NavButton onPress={() => navigation.navigate('Products')}>
-        <Store />
-        <NavText>Produtos</NavText>
+        <Store color={currentRoute === 'Products' ? '#007AFF' : '#888'} />
+        <NavText active={currentRoute === 'Products'}>Produtos</NavText>
       </NavButton>
     </Container>
   );
@@ -55,9 +56,9 @@ const NavButton = styled.TouchableOpacity`
   padding: 8px;
 `;
 
-const NavText = styled.Text`
+const NavText = styled.Text<{ active?: boolean }>`
   font-size: 12px;
-  color: #333333;
-  font-weight: 600;
+  color: ${(props) => (props.active ? '#007AFF' : '#333')};
+  font-weight: ${(props) => (props.active ? '700' : '600')};
   margin-top: 4px;
 `;
