@@ -12,13 +12,6 @@ const ClientDetails = () => {
 
   if (!client) return null;
 
-  const initials = client.name
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
-
   return (
     <Container>
       <Header>
@@ -104,34 +97,6 @@ const Content = styled.ScrollView`
 const ClientHeader = styled.View`
   align-items: center;
   padding: 24px 20px 16px;
-`;
-
-const AvatarBg = styled.View`
-  width: 80px;
-  height: 80px;
-  border-radius: 40px;
-  background-color: #007bff;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 12px;
-`;
-
-const AvatarText = styled.Text`
-  color: white;
-  font-size: 28px;
-  font-weight: bold;
-`;
-
-const ClientName = styled.Text`
-  font-size: 20px;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 4px;
-`;
-
-const ClientCNPJ = styled.Text`
-  font-size: 14px;
-  color: #666;
 `;
 
 const Section = styled.View`

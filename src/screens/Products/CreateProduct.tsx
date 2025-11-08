@@ -19,8 +19,6 @@ export default function CreateProduct() {
     }
 
     setIsSubmitting(true);
-
-    // Simulando uma requisição
     setTimeout(() => {
       Alert.alert('Sucesso', 'Produto cadastrado com sucesso!');
       setIsSubmitting(false);

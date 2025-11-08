@@ -40,7 +40,7 @@ interface ClientsListProps {
   onClientPress: (client: Client) => void;
 }
 type ProductsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Clients'>;
-const ClientsScreen = () => {
+export const ClientsScreen = () => {
   const navigation = useNavigation<ProductsScreenNavigationProp>();
   const [clients] = useState<Client[]>(mockClients);
   const [loading] = useState(false);
@@ -52,7 +52,7 @@ const ClientsScreen = () => {
   return (
     <Container>
       <Header>Clientes</Header>
-      <ClientsList clients={clients} loading={loading} onClientPress={handleClientPress} />
+      <ClientsList clients={clients} loading={loading} />
       <AddButton onPress={() => navigation.navigate('CreateClient')}>
         <AddButtonText>+</AddButtonText>
       </AddButton>
@@ -60,8 +60,6 @@ const ClientsScreen = () => {
     </Container>
   );
 };
-
-export default ClientsScreen;
 
 const Container = styled.SafeAreaView`
   flex: 1;
@@ -74,14 +72,4 @@ const Header = styled.Text`
   text-align: center;
   margin-bottom: 12px;
 `;
-const BackButton = styled.TouchableOpacity`
-  position: absolute;
-  left: 20px;
-  padding: 8px;
-`;
-
-const Title = styled.Text`
-  font-size: 24px;
-  font-weight: bold;
-  color: #333;
-`;
+// #TODO: AJUSTAR A PARTIR DESSA TELA AQUI, QUEBROU DEPOIS QUE TIREI O HANDLECLIENTPRESS

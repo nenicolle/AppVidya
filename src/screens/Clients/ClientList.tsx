@@ -6,6 +6,7 @@ import { Search } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types/navigation';
+import { getColorFromId, getInitials } from '../../utils/imageCard';
 
 interface ClientsListProps {
   clients: Client[];
@@ -23,17 +24,6 @@ const ClientsList = ({ clients, loading }: ClientsListProps) => {
 
   const handleClientPress = (client: Client) => {
     navigation.navigate('ClientDetails', { client });
-  };
-
-  const getColorFromId = (id: number) => {
-    const colors = ['#007AFF', '#FF9500', '#FF3B30', '#34C759', '#AF52DE', '#5AC8FA', '#5856D6'];
-    return colors[id % colors.length];
-  };
-
-  const getInitials = (name: string) => {
-    const parts = name.trim().split(' ');
-    if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
-    return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
   };
 
   if (loading) {
@@ -104,11 +94,11 @@ const ClientItem = styled.TouchableOpacity`
   flex-direction: row;
   align-items: center;
   padding: 12px 16px;
-  background-color: transparent; /* remove cor de fundo */
-  border-radius: 0px; /* remove arredondamento */
-  border: none; /* remove borda */
-  elevation: 0; /* remove sombra no Android */
-  shadow-opacity: 0; /* remove sombra no iOS */
+  background-color: transparent;
+  border-radius: 0px;
+  border: none;
+  elevation: 0;
+  shadow-opacity: 0;
 `;
 
 const Avatar = styled.View`

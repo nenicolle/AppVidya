@@ -21,12 +21,16 @@ export default function ProductsScreen() {
   const navigation = useNavigation<ProductsScreenNavigationProp>();
   const [search, setSearch] = useState('');
   const [products] = useState<Product[]>([
-    { id: '1', name: 'Produto 1', price: 200.99, image: 'https://via.placeholder.com/100' },
-    { id: '2', name: 'Produto 2', price: 2663.99, image: 'https://via.placeholder.com/100' },
-    { id: '3', name: 'Produto 3', price: 3.99, image: 'https://via.placeholder.com/100' },
-    { id: '4', name: 'Produto 4', price: 24.99, image: 'https://via.placeholder.com/100' },
-    { id: '5', name: 'Produto 5', price: 23.99, image: 'https://via.placeholder.com/100' },
-    { id: '6', name: 'Produto 6', price: 21233.99, image: 'https://via.placeholder.com/100' },
+    { id: '1', name: 'Camiseta', price: 49.9, image: 'https://via.placeholder.com/100' },
+    { id: '2', name: 'Calça Jeans', price: 189.9, image: 'https://via.placeholder.com/100' },
+    { id: '3', name: 'Tênis', price: 299.9, image: 'https://via.placeholder.com/100' },
+    { id: '4', name: 'Relógio', price: 399.9, image: 'https://via.placeholder.com/100' },
+    { id: '5', name: 'Livro A', price: 29.9, image: 'https://via.placeholder.com/100' },
+    { id: '6', name: 'Caderno', price: 12.5, image: 'https://via.placeholder.com/100' },
+    { id: '7', name: 'Caneta', price: 3.9, image: 'https://via.placeholder.com/100' },
+    { id: '8', name: 'Mochila', price: 149.9, image: 'https://via.placeholder.com/100' },
+    { id: '9', name: 'Fone Bluetooth', price: 199.9, image: 'https://via.placeholder.com/100' },
+    { id: '10', name: 'Mouse', price: 79.9, image: 'https://via.placeholder.com/100' },
   ]);
 
   return (
