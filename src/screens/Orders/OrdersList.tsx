@@ -1,4 +1,3 @@
-// OrdersList.tsx (corrigido)
 import React, { useState } from 'react';
 import { FlatList, ActivityIndicator } from 'react-native';
 import styled from 'styled-components/native';
@@ -21,6 +20,7 @@ type OrderScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, '
 const OrdersList = ({ orders, loading }: OrdersListProps) => {
   const [search, setSearch] = useState('');
   const navigation = useNavigation<OrderScreenNavigationProp>();
+
   const filteredOrders = orders.filter((order) =>
     order.clientName.toLowerCase().includes(search.toLowerCase()),
   );

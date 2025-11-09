@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
-import { ChevronLeft } from 'lucide-react-native';
 import styled from 'styled-components/native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Header from '../../UI/Header/Header';
+import { Alert } from 'react-native';
 
 interface Client {
   id: string;
@@ -19,7 +19,7 @@ interface Product {
   image: string;
 }
 interface RouteParams {
-  client?: Client | null; // opcional
+  client?: Client | null;
 }
 
 type NavigationProp = NativeStackNavigationProp<any>;
@@ -28,8 +28,45 @@ export default function CreateOrder() {
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<any>();
   const { client } = route.params as RouteParams;
-
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [quantities, setQuantities] = useState<Record<string, number>>({});
+
+  const hasSelectedProducts = Object.values(quantities).some((q) => q > 0);
+  const handleSave = async () => {
+    if (!client) {
+      Alert.alert('Cliente não encontrado!');
+      return;
+    }
+
+    const selectedProducts = products
+      .filter((p) => quantities[p.id] && quantities[p.id] > 0)
+      .map((p) => ({
+        id: p.id,
+        name: p.name,
+        code: p.code,
+        price: p.price,
+        quantity: quantities[p.id],
+        subtotal: quantities[p.id] * p.price,
+      }));
+
+    if (selectedProducts.length === 0) {
+      Alert.alert('Selecione pelo menos um produto!');
+      return;
+    }
+    const totalValue = selectedProducts.reduce((acc, item) => acc + item.subtotal, 0);
+
+    const payload = {
+      client: {
+        id: client.id,
+        name: client.name,
+        cnpj: client.cnpj,
+      },
+      products: selectedProducts,
+      totalValue,
+    };
+    console.log('Payload do pedido:', payload);
+    Alert.alert('Pedido montado com sucesso! Veja o console.');
+  };
 
   const products: Product[] = [
     {
@@ -54,7 +91,6 @@ export default function CreateOrder() {
       image: 'https://via.placeholder.com/100',
     },
   ];
-
   const updateQty = (id: string, delta: number) => {
     setQuantities((prev) => ({
       ...prev,
@@ -109,6 +145,11 @@ export default function CreateOrder() {
         keyExtractor={(item: Product) => item.id}
         renderItem={renderItem}
       />
+      <Footer>
+        <SaveButton onPress={handleSave} disabled={!hasSelectedProducts}>
+          <SaveText>{hasSelectedProducts ? 'Salvar' : 'Selecione algum produto'}</SaveText>
+        </SaveButton>
+      </Footer>
     </Container>
   );
 }
@@ -208,4 +249,26 @@ const ProductPrice = styled.Text`
   font-size: 15px;
   font-weight: 600;
   color: #000;
+`;
+const Footer = styled.View`
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding: 20px;
+  background-color: #fff;
+  border-top-width: 1px;
+  border-top-color: #eaeaea;
+`;
+
+const SaveButton = styled.TouchableOpacity<{ disabled?: boolean }>`
+  background-color: ${(props) => (props.disabled ? '#ccc' : '#007aff')};
+  padding: 16px;
+  border-radius: 10px;
+  align-items: center;
+`;
+
+const SaveText = styled.Text`
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
 `;

@@ -16,5 +16,5 @@ export type RootStackParamList = {
   Orders: undefined;
   OrderDetails: { order: Order };
   CreateOrder: { client: Client };
-  SelectClient: { client: Client };
+  SelectClient: undefined;
 };

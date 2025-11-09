@@ -56,7 +56,7 @@ export default function SelectClient() {
 
       <Footer>
         <SaveButton onPress={handleSave} disabled={!selectedClient}>
-          <SaveText>{selectedClient ? 'Salvar seleção' : 'Selecione um cliente'}</SaveText>
+          <SaveText>{selectedClient ? 'Salvar' : 'Selecione um cliente'}</SaveText>
         </SaveButton>
       </Footer>
     </Container>

@@ -43,14 +43,6 @@ export default function ClientsScreen() {
   const [clients] = useState<Client[]>(mockClients);
   const [loading] = useState(false);
 
-  const handleClientPress = useCallback(
-    (client: Client) => {
-      // navega para ClientDetails passando o client
-      navigation.navigate('ClientDetails', { client });
-    },
-    [navigation],
-  );
-
   return (
     <Container>
       <Header title="Clientes" />
