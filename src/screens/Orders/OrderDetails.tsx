@@ -5,6 +5,7 @@ import { RootStackParamList } from '../../types/navigation';
 import { Order } from '../../types/order';
 import { getColorFromId, getInitials } from '../../utils/imageCard';
 import { ChevronLeft } from 'lucide-react-native';
+import Header from '../../UI/Header/Header';
 
 type OrderDetailsRouteProp = RouteProp<RootStackParamList, 'OrderDetails'>;
 
@@ -14,13 +15,7 @@ export default function OrderDetails() {
   const navigation = useNavigation();
   return (
     <Container>
-      <Header>
-        <BackButton onPress={() => navigation.goBack()}>
-          <ChevronLeft size={22} />
-        </BackButton>
-        <HeaderTitle>Detalhes do pedido</HeaderTitle>
-      </Header>
-
+      <Header title="Detalhes do pedido" showBack />
       <Section>
         <Avatar style={{ backgroundColor: getColorFromId(order.id) }}>
           <AvatarText>{getInitials(order.clientName)}</AvatarText>
@@ -74,14 +69,6 @@ const Container = styled.ScrollView`
   flex: 1;
   background-color: #fff;
   padding: 20px;
-`;
-
-const Header = styled.View`
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  padding: 20px 20px 16px;
-  position: relative;
 `;
 
 const Avatar = styled.View`

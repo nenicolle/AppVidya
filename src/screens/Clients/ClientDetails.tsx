@@ -4,6 +4,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import styled from 'styled-components/native';
 import { ChevronLeft } from 'lucide-react-native';
 import { Client } from '../../types/client';
+import Header from '../../UI/Header/Header';
 
 const ClientDetails = () => {
   const route = useRoute<any>();
@@ -14,13 +15,7 @@ const ClientDetails = () => {
 
   return (
     <Container>
-      <Header>
-        <BackButton onPress={() => navigation.goBack()}>
-          <ChevronLeft size={22} />
-        </BackButton>
-        <HeaderTitle>{client.name}</HeaderTitle>
-      </Header>
-
+      <Header title={`${client.name}`} showBack />
       <Content>
         <Section>
           <InfoRow>
@@ -66,14 +61,6 @@ export default ClientDetails;
 const Container = styled.SafeAreaView`
   flex: 1;
   background-color: #fff;
-`;
-
-const Header = styled.View`
-  flex-direction: row;
-  align-items: center;
-  padding: 16px;
-  border-bottom-width: 1px;
-  border-color: #eee;
 `;
 
 const BackButton = styled.TouchableOpacity`

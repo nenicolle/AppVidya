@@ -3,6 +3,7 @@ import styled from 'styled-components/native';
 import OrdersList from '../../screens/Orders/OrdersList';
 import NavigationBar from '../../UI/NavigationBar';
 import { Order } from '../../types/order';
+import Header from '../../UI/Header/Header';
 
 const mockOrders: Order[] = [
   {
@@ -39,10 +40,7 @@ const OrdersScreen = () => {
 
   return (
     <Container>
-      <Header>
-        <Title>Pedidos</Title>
-      </Header>
-
+      <Header title="Pedidos" />
       <OrdersList orders={orders} onOrderPress={handleOrderPress} />
 
       <NavigationBar />
@@ -54,18 +52,6 @@ export default OrdersScreen;
 
 const Container = styled.View`
   flex: 1;
-  background-color: #f9f9f9;
-`;
-const Header = styled.View`
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  padding: 20px 20px 16px;
-  position: relative;
-`;
-
-const Title = styled.Text`
-  font-size: 18px;
-  font-weight: 700;
-  color: #333;
+  background-color: #fff;
+  padding: 16px;
 `;

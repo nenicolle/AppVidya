@@ -3,6 +3,7 @@ import styled from 'styled-components/native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
 import type { RootStackParamList } from '../../types/navigation';
+import { X, Image as ImageIcon } from 'lucide-react-native';
 
 type ProductDetailsRouteProp = RouteProp<RootStackParamList, 'ProductDetails'>;
 
@@ -13,63 +14,92 @@ export default function ProductDetailsScreen() {
 
   return (
     <Container>
-      {product.image && <ProductImage source={{ uri: product.image }} />}
+      <HeaderArea>
+        <CloseButton onPress={() => navigation.goBack()}>
+          <X size={28} color="#000" />
+        </CloseButton>
 
-      <Title>{product.name}</Title>
-      <Price>R$ {product.price.toFixed(2)}</Price>
-      <Description>
-        Descrição: Produto de alta qualidade da linha Vidya
-      </Description>
+        <ImageWrapper>
+          {product.image ? (
+            <ProductImage source={{ uri: product.image }} resizeMode="cover" />
+          ) : (
+            <Placeholder>
+              <ImageIcon size={40} color="#9DB7E5" />
+            </Placeholder>
+          )}
+        </ImageWrapper>
+      </HeaderArea>
 
-      <ButtonContainer onPress={() => navigation.goBack()}>
-        <ButtonText>Voltar</ButtonText>
-      </ButtonContainer>
+      <Content>
+        <Title>{product.name}</Title>
+        <Price>R$ {product.price.toFixed(2)}</Price>
+        <Description>{product.description} </Description>
+      </Content>
     </Container>
   );
 }
 
-// 🎨 Estilização com styled-components
 const Container = styled.ScrollView`
   flex: 1;
-  background-color: #fff;
-  padding: 20px;
+  background-color: #ffffff;
+`;
+
+const HeaderArea = styled.View`
+  background-color: #eaf0fb;
+  height: 300px;
+  justify-content: flex-start;
+  align-items: center;
+  position: relative;
+`;
+
+const CloseButton = styled.TouchableOpacity`
+  position: absolute;
+  top: 50px;
+  left: 20px;
+  z-index: 10;
+`;
+
+const ImageWrapper = styled.View`
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+`;
+
+const Placeholder = styled.View`
+  width: 80px;
+  height: 80px;
+  background-color: #dfe8f5;
+  border-radius: 12px;
+  justify-content: center;
+  align-items: center;
 `;
 
 const ProductImage = styled.Image`
   width: 100%;
-  height: 200px;
-  border-radius: 12px;
-  margin-bottom: 20px;
-  background-color: #dfe8f5;
+  height: 100%;
+  border-radius: 0px;
+`;
+
+const Content = styled.View`
+  padding: 24px;
 `;
 
 const Title = styled.Text`
-  font-size: 24px;
+  font-size: 18px;
   font-weight: bold;
-  margin-bottom: 10px;
+  color: #000;
+  margin-bottom: 6px;
 `;
 
 const Price = styled.Text`
-  font-size: 18px;
-  color: #007aff;
-  margin-bottom: 15px;
+  font-size: 16px;
+  color: #000;
+  margin-bottom: 16px;
 `;
 
 const Description = styled.Text`
-  font-size: 16px;
-  color: #333;
-`;
-
-const ButtonContainer = styled.TouchableOpacity`
-  margin-top: 20px;
-  background-color: #007aff;
-  padding: 12px;
-  border-radius: 8px;
-  align-items: center;
-`;
-
-const ButtonText = styled.Text`
-  color: #fff;
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 14px;
+  color: #555;
+  line-height: 20px;
 `;

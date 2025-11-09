@@ -3,6 +3,7 @@ import { Alert, TextInputProps, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 import { useNavigation } from '@react-navigation/native';
 import { CameraIcon, ChevronLeft } from 'lucide-react-native';
+import Header from '../../UI/Header/Header';
 
 export default function CreateProduct() {
   const navigation = useNavigation();
@@ -31,12 +32,7 @@ export default function CreateProduct() {
 
   return (
     <Container>
-      <Header>
-        <BackButton onPress={() => navigation.goBack()}>
-          <ChevronLeft size={22} />
-        </BackButton>
-        <HeaderTitle>Cadastro de produto</HeaderTitle>
-      </Header>
+      <Header title="Cadastro de produto" showBack />
 
       <Content>
         <Label>Nome</Label>
@@ -90,23 +86,6 @@ const Footer = styled.View`
   position: absolute;
   bottom: 0;
   width: 100%;
-`;
-
-const Header = styled.View`
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  padding: 20px 20px 16px;
-  position: relative;
-`;
-const BackButton = styled.TouchableOpacity`
-  position: absolute;
-  left: 20px;
-  padding: 8px;
-`;
-const HeaderTitle = styled.Text`
-  font-size: 18px;
-  font-weight: 700;
 `;
 
 const Label = styled.Text`

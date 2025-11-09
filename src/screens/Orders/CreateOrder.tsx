@@ -4,6 +4,7 @@ import { ChevronLeft } from 'lucide-react-native';
 import styled from 'styled-components/native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import Header from '../../UI/Header/Header';
 
 interface Client {
   id: string;
@@ -86,12 +87,7 @@ export default function CreateOrder() {
   if (!client) {
     return (
       <Container>
-        <Header>
-          <BackButton onPress={() => navigation.goBack()}>
-            <ChevronLeft size={22} color="#000" />
-          </BackButton>
-          <HeaderTitle>Erro</HeaderTitle>
-        </Header>
+        <Header title="Erro" showBack />
         <ErrorContainer>
           <ErrorText>Cliente não selecionado.</ErrorText>
           <ErrorText>Voltando...</ErrorText>
@@ -102,13 +98,7 @@ export default function CreateOrder() {
 
   return (
     <Container>
-      <Header>
-        <BackButton onPress={() => navigation.goBack()}>
-          <ChevronLeft size={22} color="#000" />
-        </BackButton>
-        <HeaderTitle>Cadastro de pedido</HeaderTitle>
-      </Header>
-
+      <Header title="Cadastro de pedido" showBack />
       <ClientSection>
         <ClientName>{client.name}</ClientName>
         <ClientCNPJ>CNPJ: {client.cnpj}</ClientCNPJ>
@@ -142,23 +132,7 @@ const Container = styled.View`
   flex: 1;
   background: #fff;
 `;
-const Header = styled.View`
-  flex-direction: row;
-  align-items: center;
-  padding: 16px;
-  border-bottom-width: 1px;
-  border-color: #eee;
-`;
-const BackButton = styled.TouchableOpacity`
-  padding: 8px;
-`;
-const HeaderTitle = styled.Text`
-  flex: 1;
-  font-size: 18px;
-  font-weight: 600;
-  text-align: center;
-  margin-right: 40px;
-`;
+
 const ClientSection = styled.View`
   padding: 16px;
   background: #f9f9f9;

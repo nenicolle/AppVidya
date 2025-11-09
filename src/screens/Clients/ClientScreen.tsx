@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import styled from 'styled-components/native';
 import ClientsList from '../../screens/Clients/ClientList';
 import NavigationBar from '../../UI/NavigationBar';
@@ -7,7 +7,10 @@ import { AddButton, AddButtonText } from '../../UI/Buttons';
 import { useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../../types/navigation';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ChevronLeft } from 'lucide-react-native';
+import Header from '../../UI/Header/Header';
+
+type ClientsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Clients'>;
+
 const mockClients: Client[] = [
   {
     id: 1,
@@ -34,24 +37,23 @@ const mockClients: Client[] = [
     number: '45',
   },
 ];
-interface ClientsListProps {
-  clients: Client[];
-  loading?: boolean;
-  onClientPress: (client: Client) => void;
-}
-type ProductsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Clients'>;
-export const ClientsScreen = () => {
-  const navigation = useNavigation<ProductsScreenNavigationProp>();
+
+export default function ClientsScreen() {
+  const navigation = useNavigation<ClientsScreenNavigationProp>();
   const [clients] = useState<Client[]>(mockClients);
   const [loading] = useState(false);
 
-  const handleClientPress = (client: Client) => {
-    console.log('Cliente selecionado:', client);
-  };
+  const handleClientPress = useCallback(
+    (client: Client) => {
+      // navega para ClientDetails passando o client
+      navigation.navigate('ClientDetails', { client });
+    },
+    [navigation],
+  );
 
   return (
     <Container>
-      <Header>Clientes</Header>
+      <Header title="Clientes" />
       <ClientsList clients={clients} loading={loading} />
       <AddButton onPress={() => navigation.navigate('CreateClient')}>
         <AddButtonText>+</AddButtonText>
@@ -59,17 +61,10 @@ export const ClientsScreen = () => {
       <NavigationBar />
     </Container>
   );
-};
+}
 
 const Container = styled.SafeAreaView`
   flex: 1;
   background-color: #fff;
   padding: 16px;
 `;
-const Header = styled.Text`
-  font-size: 18px;
-  font-weight: 700;
-  text-align: center;
-  margin-bottom: 12px;
-`;
-// #TODO: AJUSTAR A PARTIR DESSA TELA AQUI, QUEBROU DEPOIS QUE TIREI O HANDLECLIENTPRESS

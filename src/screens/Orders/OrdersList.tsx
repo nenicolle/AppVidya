@@ -8,11 +8,12 @@ import { AddButton, AddButtonText } from '../../UI/Buttons';
 import { useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../../types/navigation';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Search } from 'lucide-react-native';
 
 interface OrdersListProps {
   orders: Order[];
   loading?: boolean;
-  // onOrderPress: (order: Order) => void;
+  onOrderPress: (order: Order) => void;
 }
 
 type OrderScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Orders'>;
@@ -35,11 +36,12 @@ const OrdersList = ({ orders, loading }: OrdersListProps) => {
   return (
     <Container>
       <SearchContainer>
+        <Search size={24} color="#333" />
         <SearchInput
-          placeholder="Pesquisar"
+          placeholder="Buscar cliente..."
+          placeholderTextColor="#999"
           value={search}
           onChangeText={setSearch}
-          placeholderTextColor="#999"
         />
       </SearchContainer>
 
@@ -72,21 +74,25 @@ const OrdersList = ({ orders, loading }: OrdersListProps) => {
 
 export default OrdersList;
 
-const Container = styled.View`
+const Container = styled.SafeAreaView`
   flex: 1;
   background-color: #fff;
 `;
 
 const SearchContainer = styled.View`
-  background-color: #f5f5f7;
-  margin: 16px;
-  border-radius: 16px;
-  padding: 10px 16px;
+  background-color: #f9f9f9;
+  flex-direction: row;
+  align-items: center;
+  border-radius: 12px;
+  padding: 0px 14px;
+  height: 40px;
+  margin-bottom: 20px;
 `;
 
 const SearchInput = styled.TextInput`
-  font-size: 16px;
+  flex: 1;
   color: #333;
+  font-size: 16px;
 `;
 
 const OrderItem = styled.TouchableOpacity`

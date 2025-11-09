@@ -8,6 +8,7 @@ import * as yup from 'yup';
 import { Picker } from '@react-native-picker/picker';
 import { CameraIcon, ChevronLeft } from 'lucide-react-native';
 import { MaskedTextInput } from 'react-native-mask-text';
+import Header from '../../UI/Header/Header';
 
 const schema = yup.object({
   name: yup.string().required('Nome é obrigatório'),
@@ -125,17 +126,8 @@ export default function CreateClient() {
 
   return (
     <Container>
-      <Header>
-        <BackButton onPress={() => navigation.goBack()}>
-          <ChevronLeft size={22} color="#000" />
-        </BackButton>
-        <HeaderTitle>Cadastro de Cliente</HeaderTitle>
-      </Header>
-
-      <ScrollContainer
-        contentContainerStyle={{ paddingBottom: 20 }}
-        // keyboardShouldPersistTaps="handled"
-      >
+      <Header title="Cadastro de Cliente" showBack />
+      <ScrollContainer contentContainerStyle={{ paddingBottom: 20 }}>
         <PhotoContainer>
           <TouchableOpacity onPress={handleUpload}>
             <PhotoPlaceholder>
@@ -296,25 +288,7 @@ const Container = styled.View`
   flex: 1;
   background: #fff;
 `;
-const Header = styled.View`
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  padding: 20px 20px 16px;
-  position: relative;
-  /* border-bottom-width: 1px; */
-  /* border-bottom-color: #eee; */
-`;
-const BackButton = styled.TouchableOpacity`
-  position: absolute;
-  left: 20px;
-  padding: 8px;
-`;
-const HeaderTitle = styled.Text`
-  font-size: 18px;
-  font-weight: 700;
-  color: #000;
-`;
+
 const ScrollContainer = styled.ScrollView`
   flex: 1;
   padding: 20px;

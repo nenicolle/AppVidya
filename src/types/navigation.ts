@@ -1,6 +1,6 @@
 import { Product } from '../types/Products';
 import { Client } from './client';
-import { Order } from './Order';
+import { Order } from './order';
 
 export type RootStackParamList = {
   Home: undefined;
@@ -16,4 +16,5 @@ export type RootStackParamList = {
   Orders: undefined;
   OrderDetails: { order: Order };
   CreateOrder: { client: Client };
+  SelectClient: { client: Client };
 };

@@ -7,13 +7,8 @@ import { RootStackParamList } from '../../types/navigation';
 import NavigationBar from '../../UI/NavigationBar';
 import { AddButton, AddButtonText } from '../../UI/Buttons';
 import { Search } from 'lucide-react-native';
-
-export interface Product {
-  id: string;
-  name: string;
-  price: number;
-  image?: string;
-}
+import Header from '../../UI/Header/Header';
+import { Product } from '../../types/Products';
 
 type ProductsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Products'>;
 
@@ -21,22 +16,81 @@ export default function ProductsScreen() {
   const navigation = useNavigation<ProductsScreenNavigationProp>();
   const [search, setSearch] = useState('');
   const [products] = useState<Product[]>([
-    { id: '1', name: 'Camiseta', price: 49.9, image: 'https://via.placeholder.com/100' },
-    { id: '2', name: 'Calça Jeans', price: 189.9, image: 'https://via.placeholder.com/100' },
-    { id: '3', name: 'Tênis', price: 299.9, image: 'https://via.placeholder.com/100' },
-    { id: '4', name: 'Relógio', price: 399.9, image: 'https://via.placeholder.com/100' },
-    { id: '5', name: 'Livro A', price: 29.9, image: 'https://via.placeholder.com/100' },
-    { id: '6', name: 'Caderno', price: 12.5, image: 'https://via.placeholder.com/100' },
-    { id: '7', name: 'Caneta', price: 3.9, image: 'https://via.placeholder.com/100' },
-    { id: '8', name: 'Mochila', price: 149.9, image: 'https://via.placeholder.com/100' },
-    { id: '9', name: 'Fone Bluetooth', price: 199.9, image: 'https://via.placeholder.com/100' },
-    { id: '10', name: 'Mouse', price: 79.9, image: 'https://via.placeholder.com/100' },
+    {
+      id: '1',
+      name: 'Camiseta',
+      price: 49.9,
+      image: 'https://via.placeholder.com/100',
+      description: 'Camiseta confortável para usar no dia a dia.',
+    },
+    {
+      id: '2',
+      name: 'Calça Jeans',
+      price: 189.9,
+      image: 'https://via.placeholder.com/100',
+      description: 'Calça jeans estilosa que combina com tudo.',
+    },
+    {
+      id: '3',
+      name: 'Tênis',
+      price: 299.9,
+      image: 'https://via.placeholder.com/100',
+      description: 'Tênis leve e moderno para todas as ocasiões.',
+    },
+    {
+      id: '4',
+      name: 'Relógio',
+      price: 399.9,
+      image: 'https://via.placeholder.com/100',
+      description: 'Relógio elegante para quem gosta de pontualidade com estilo.',
+    },
+    {
+      id: '5',
+      name: 'Livro A',
+      price: 29.9,
+      image: 'https://via.placeholder.com/100',
+      description: 'Um livro envolvente que vai te prender do início ao fim.',
+    },
+    {
+      id: '6',
+      name: 'Caderno',
+      price: 12.5,
+      image: 'https://via.placeholder.com/100',
+      description: 'Caderno simples, mas cheio de espaço para boas ideias.',
+    },
+    {
+      id: '7',
+      name: 'Caneta',
+      price: 3.9,
+      image: 'https://via.placeholder.com/100',
+      description: 'Caneta macia e precisa — porque escrever bem é essencial.',
+    },
+    {
+      id: '8',
+      name: 'Mochila',
+      price: 149.9,
+      image: 'https://via.placeholder.com/100',
+      description: 'Mochila espaçosa, perfeita para o dia de trabalho ou estudo.',
+    },
+    {
+      id: '9',
+      name: 'Fone Bluetooth',
+      price: 199.9,
+      image: 'https://via.placeholder.com/100',
+      description: 'Fone sem fio com som potente e bateria de longa duração.',
+    },
+    {
+      id: '10',
+      name: 'Mouse',
+      price: 79.9,
+      image: 'https://via.placeholder.com/100',
+      description: 'Mouse ergonômico que desliza suave em qualquer superfície.',
+    },
   ]);
 
   return (
     <Container>
-      <Header>Produtos</Header>
-
+      <Header title="Produtos" />
       <SearchContainer>
         <Search size={24} color="#333" />
         <SearchInput
@@ -82,12 +136,6 @@ const ProductInformation = styled.View`
   justify-content: flex-start;
   align-items: flex-start;
   padding: 10px 15px;
-`;
-const Header = styled.Text`
-  font-size: 18px;
-  font-weight: 700;
-  text-align: center;
-  margin-bottom: 12px;
 `;
 
 const SearchContainer = styled.View`
