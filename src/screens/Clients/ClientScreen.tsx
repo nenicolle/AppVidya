@@ -11,7 +11,7 @@ import Header from '../../UI/Header/Header';
 
 type ClientsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Clients'>;
 
-const mockClients: Client[] = [
+export const mockClients: Client[] = [
   {
     id: 1,
     name: 'Ana Costa',

@@ -42,7 +42,6 @@ const OrdersScreen = () => {
     <Container>
       <Header title="Pedidos" />
       <OrdersList orders={orders} onOrderPress={handleOrderPress} />
-
       <NavigationBar />
     </Container>
   );

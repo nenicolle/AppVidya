@@ -68,18 +68,16 @@ export default function CreateOrder() {
       <ProductInfo>
         <ProductName>{item.name}</ProductName>
         <ProductCode>Cód: {item.code}</ProductCode>
+        <QtyContainer>
+          <QtyButton onPress={() => updateQty(item.id, -1)}>
+            <QtyText>-</QtyText>
+          </QtyButton>
+          <QtyValue>{quantities[item.id] || 0}</QtyValue>
+          <QtyButton onPress={() => updateQty(item.id, 1)}>
+            <QtyText>+</QtyText>
+          </QtyButton>
+        </QtyContainer>
       </ProductInfo>
-
-      <QtyContainer>
-        <QtyButton onPress={() => updateQty(item.id, -1)}>
-          <QtyText>-</QtyText>
-        </QtyButton>
-        <QtyValue>{quantities[item.id] || 0}</QtyValue>
-        <QtyButton onPress={() => updateQty(item.id, 1)}>
-          <QtyText>+</QtyText>
-        </QtyButton>
-      </QtyContainer>
-
       <ProductPrice>R$ {item.price.toFixed(2)}</ProductPrice>
     </ProductItem>
   );

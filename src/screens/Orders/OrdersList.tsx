@@ -65,7 +65,7 @@ const OrdersList = ({ orders, loading }: OrdersListProps) => {
         ListEmptyComponent={<EmptyText>Nenhum pedido encontrado</EmptyText>}
       />
 
-      <AddButton onPress={() => navigation.navigate('CreateOrder', { client: null as any })}>
+      <AddButton onPress={() => navigation.navigate('SelectClient')}>
         <AddButtonText>+</AddButtonText>
       </AddButton>
     </Container>
