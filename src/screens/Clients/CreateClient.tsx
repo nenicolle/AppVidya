@@ -1,12 +1,12 @@
 import React from 'react';
-import { Alert, TouchableOpacity, ScrollView, View } from 'react-native';
+import { Alert, TouchableOpacity, ScrollView, View, ActivityIndicator } from 'react-native';
 import styled from 'styled-components/native';
 import { useNavigation } from '@react-navigation/native';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { Picker } from '@react-native-picker/picker';
-import { CameraIcon, ChevronLeft } from 'lucide-react-native';
+import { CameraIcon } from 'lucide-react-native';
 import { MaskedTextInput } from 'react-native-mask-text';
 import Header from '../../UI/Header/Header';
 import { launchImageLibrary } from 'react-native-image-picker';
@@ -67,14 +67,18 @@ const estadosBrasileiros = [
 
 type AddressField =
   | { key: 'state'; label: 'Estado'; picker: true }
-  | { key: 'city'; label: 'Cidade' }
-  | { key: 'neighborhood'; label: 'Bairro' }
-  | { key: 'street'; label: 'Endereço' };
+  | { key: 'city'; label: 'Cidade'; editable: false }
+  | { key: 'neighborhood'; label: 'Bairro'; editable: false }
+  | { key: 'street'; label: 'Endereço'; editable: false };
 
 export default function CreateClient() {
   const [imageUri, setImageUri] = React.useState<string | null>(null);
+  const [cepLoading, setCepLoading] = React.useState(false);
+
   const navigation = useNavigation<any>();
+
   const realm = useRealm();
+
   const {
     control,
     handleSubmit,
@@ -95,6 +99,10 @@ export default function CreateClient() {
       number: '',
     },
   });
+
+  const cep = watch('cep');
+  const state = watch('state');
+
   const fillAddress = (data: any) => {
     const { logradouro, bairro, localidade, uf } = data;
     setValue('street', logradouro ?? '', { shouldValidate: true, shouldDirty: true });
@@ -103,14 +111,18 @@ export default function CreateClient() {
     setValue('state', uf ?? '', { shouldValidate: true, shouldDirty: true });
   };
 
-  const cep = watch('cep');
   React.useEffect(() => {
     if (/^\d{5}-\d{3}$/.test(cep)) {
+      setCepLoading(true);
       fetch(`https://viacep.com.br/ws/${cep.replace('-', '')}/json/`)
         .then((r) => r.json())
         .then((d) => {
           if (!d.erro) fillAddress(d);
-        });
+        })
+        .catch(() => {
+          // Silencia erro de rede
+        })
+        .finally(() => setCepLoading(false));
     }
   }, [cep]);
 
@@ -147,13 +159,13 @@ export default function CreateClient() {
         quality: 0.8,
       },
       (response) => {
-        if (response.didCancel) {
-          console.log('Usuário cancelou');
-        } else if (response.errorCode) {
-          console.log('Erro: ', response.errorMessage);
-        } else if (response.assets && response.assets.length > 0) {
-          const asset = response.assets[0];
-          setImageUri(asset.uri || null);
+        if (response.didCancel) return;
+        if (response.errorCode) {
+          Alert.alert('Erro', response.errorMessage || 'Erro ao selecionar imagem');
+          return;
+        }
+        if (response.assets?.[0]?.uri) {
+          setImageUri(response.assets[0].uri);
         }
       },
     );
@@ -161,15 +173,15 @@ export default function CreateClient() {
 
   const addressFields: AddressField[] = [
     { key: 'state', label: 'Estado', picker: true },
-    { key: 'city', label: 'Cidade' },
-    { key: 'neighborhood', label: 'Bairro' },
-    { key: 'street', label: 'Endereço' },
+    { key: 'city', label: 'Cidade', editable: false },
+    { key: 'neighborhood', label: 'Bairro', editable: false },
+    { key: 'street', label: 'Endereço', editable: false },
   ];
 
   return (
     <Container>
       <Header title="Cadastro de Cliente" showBack />
-      <ScrollContainer contentContainerStyle={{ paddingBottom: 20 }}>
+      <ScrollContainer contentContainerStyle={{ paddingBottom: 120 }}>
         <PhotoContainer>
           <TouchableOpacity onPress={handleUpload}>
             <PhotoPlaceholder>
@@ -195,6 +207,7 @@ export default function CreateClient() {
             render={({ field }) => (
               <Input
                 placeholder="Ex: Ana Silva"
+                placeholderTextColor="#ccc"
                 value={field.value}
                 onChangeText={field.onChange}
               />
@@ -207,20 +220,13 @@ export default function CreateClient() {
             control={control}
             name="cnpj"
             render={({ field }) => (
-              <MaskedTextInput
+              <MaskedInput
                 mask="99.999.999/9999-99"
                 placeholder="00.000.000/0000-00"
+                placeholderTextColor="#ccc"
                 value={field.value}
                 onChangeText={field.onChange}
                 keyboardType="numeric"
-                style={{
-                  borderWidth: 1,
-                  borderColor: '#e1e1e1',
-                  borderRadius: 8,
-                  paddingLeft: 12,
-                  fontSize: 16,
-                  height: 40,
-                }}
               />
             )}
           />
@@ -231,60 +237,33 @@ export default function CreateClient() {
             control={control}
             name="phone"
             render={({ field }) => (
-              <MaskedTextInput
+              <MaskedInput
                 mask="(99) 99999-9999"
                 placeholder="(11) 98765-4321"
-                keyboardType="phone-pad"
+                placeholderTextColor="#ccc"
                 value={field.value}
-                onChangeText={(t) => {
-                  const f = t
-                    .replace(/\D/g, '')
-                    .replace(/(\d{2})(\d)/, '($1) $2')
-                    .replace(/(\d{5})(\d)/, '$1-$2')
-                    .slice(0, 15);
-                  field.onChange(f);
-                }}
-                style={{
-                  borderWidth: 1,
-                  borderColor: '#e1e1e1',
-                  borderRadius: 8,
-                  paddingLeft: 12,
-                  fontSize: 16,
-                  height: 40,
-                }}
+                onChangeText={field.onChange}
+                keyboardType="phone-pad"
               />
             )}
           />
         </FormField>
 
         <FormField label="CEP" error={errors.cep?.message}>
-          <Controller
-            control={control}
-            name="cep"
-            render={({ field }) => (
-              <MaskedTextInput
-                mask="99999-999"
-                placeholder="00000-000"
-                value={field.value}
-                onChangeText={(t) => {
-                  const f = t
-                    .replace(/\D/g, '')
-                    .replace(/(\d{5})(\d)/, '$1-$2')
-                    .slice(0, 9);
-                  field.onChange(f);
-                }}
-                keyboardType="numeric"
-                style={{
-                  borderWidth: 1,
-                  borderColor: '#e1e1e1',
-                  borderRadius: 8,
-                  paddingLeft: 12,
-                  fontSize: 16,
-                  height: 40,
-                }}
-              />
+          <CepContainer>
+            <InnerMaskedInput
+              mask="99999-999"
+              placeholder="00000-000"
+              placeholderTextColor="#ccc"
+              value={watch('cep')}
+              onChangeText={(text) => setValue('cep', text, { shouldValidate: true })}
+              keyboardType="numeric"
+              style={{ flex: 1 }}
+            />
+            {cepLoading && (
+              <ActivityIndicator size="small" color="#007aff" style={{ marginLeft: 8 }} />
             )}
-          />
+          </CepContainer>
         </FormField>
 
         {addressFields.map((f) => (
@@ -294,16 +273,27 @@ export default function CreateClient() {
               name={f.key}
               render={({ field }) =>
                 'picker' in f && f.picker ? (
-                  <PickerContainer>
-                    <Picker selectedValue={field.value} onValueChange={field.onChange}>
-                      <Picker.Item label="Selecione..." value="" />
+                  <PickerContainer key={field.value}>
+                    <Picker
+                      selectedValue={field.value}
+                      onValueChange={field.onChange}
+                      style={pickerSelectStyles}
+                      dropdownIconColor="#007aff"
+                    >
+                      <Picker.Item label="Selecione..." value="" color="#ccc" />{' '}
                       {estadosBrasileiros.map((u) => (
                         <Picker.Item key={u} label={u} value={u} />
                       ))}
                     </Picker>
                   </PickerContainer>
                 ) : (
-                  <Input placeholder="" value={field.value} onChangeText={field.onChange} />
+                  <Input
+                    placeholder=""
+                    placeholderTextColor="#ccc"
+                    value={field.value}
+                    onChangeText={field.onChange}
+                    editable={'editable' in f ? f.editable : true}
+                  />
                 )
               }
             />
@@ -317,6 +307,7 @@ export default function CreateClient() {
             render={({ field }) => (
               <Input
                 placeholder="Ex: 1000"
+                placeholderTextColor="#ccc"
                 value={field.value}
                 onChangeText={field.onChange}
                 keyboardType="numeric"
@@ -328,13 +319,14 @@ export default function CreateClient() {
 
       <Footer>
         <SaveButton onPress={handleSubmit(onSubmit)} disabled={isSubmitting}>
-          <SaveText>{isSubmitting ? 'Salvando...' : 'Salvar'}</SaveText>
+          <SaveText>{isSubmitting ? 'Salvando...' : 'Salvar Cliente'}</SaveText>
         </SaveButton>
       </Footer>
     </Container>
   );
 }
 
+// === ESTILOS ===
 const Container = styled.View`
   flex: 1;
   background: #fff;
@@ -343,68 +335,114 @@ const Container = styled.View`
 const ScrollContainer = styled.ScrollView`
   flex: 1;
   padding: 20px;
-  padding-bottom: 240px;
 `;
+
 const PhotoContainer = styled.View`
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 `;
+
 const PhotoPlaceholder = styled.View`
   width: 100px;
   height: 100px;
   border-radius: 50px;
-  background: #f0f0f0;
+  background: #f5f5f5;
   border: 2px dashed #ccc;
   justify-content: center;
   align-items: center;
 `;
+const pickerSelectStyles = {
+  paddingLeft: 15,
+  fontSize: 16,
+  height: 65,
+  color: '#ccc',
+};
 const PhotoHint = styled.Text`
   font-size: 12px;
   color: #999;
   margin-top: 6px;
 `;
+
+const FieldWrapper = styled.View`
+  margin-bottom: 16px;
+`;
+
 const Label = styled.Text`
   font-size: 14px;
   font-weight: 600;
   margin-bottom: 6px;
   color: #000;
 `;
+
 const Input = styled.TextInput`
   border: 1px solid #e1e1e1;
   border-radius: 8px;
   padding-left: 12px;
   font-size: 16px;
   height: 40px;
+  background-color: #fafafa;
+  color: #000;
+  placeholder-text-color: #ccc;
+` as any;
+
+const MaskedInput = styled(MaskedTextInput)`
+  border: 1px solid #e1e1e1;
+  border-radius: 8px;
+  padding-left: 12px;
+  font-size: 16px;
+  height: 40px;
+  background-color: #fafafa;
+`;
+const InnerMaskedInput = styled(MaskedTextInput)`
+  flex: 1;
+  font-size: 16px;
+  color: #000;
+  padding-left: -12px;
 `;
 const PickerContainer = styled.View`
   border: 1px solid #e1e1e1;
   border-radius: 8px;
   overflow: hidden;
   height: 40px;
+  justify-content: center;
+  background-color: #fafafa;
 `;
+
+const CepContainer = styled.View`
+  flex-direction: row;
+  align-items: center;
+  border: 1px solid #e1e1e1;
+  border-radius: 8px;
+  padding-left: 12px;
+  height: 40px;
+  background-color: #fafafa;
+`;
+
 const ErrorText = styled.Text`
   color: #e74c3c;
   font-size: 12px;
   margin-top: 4px;
 `;
+
 const Footer = styled.View`
   padding: 20px;
   background: #fff;
+  border-top-width: 1px;
+  border-color: #eee;
 `;
+
 const SaveButton = styled.TouchableOpacity<{ disabled?: boolean }>`
   background: #007aff;
   padding: 16px;
   border-radius: 10px;
   align-items: center;
-  opacity: ${(p) => (p.disabled ? 0.7 : 1)};
+  opacity: ${(p) => (p.disabled ? 0.6 : 1)};
 `;
+
 const SaveText = styled.Text`
   color: #fff;
   font-size: 16px;
   font-weight: 600;
-`;
-const FieldWrapper = styled.View`
-  margin-bottom: 16px;
 `;
 
 interface FormFieldProps {
@@ -412,6 +450,7 @@ interface FormFieldProps {
   error?: string;
   children: React.ReactNode;
 }
+
 const FormField: React.FC<FormFieldProps> = ({ label, error, children }) => (
   <FieldWrapper>
     <Label>{label}</Label>
