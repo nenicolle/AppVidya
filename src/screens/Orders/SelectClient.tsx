@@ -4,17 +4,16 @@ import styled from 'styled-components/native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types/navigation';
-import { Client } from '../../types/client';
+import { Client } from '../../database/schemas/ClientSchema';
 import { CheckCircle, Circle } from 'lucide-react-native';
 import Header from '../../UI/Header/Header';
-import { mockClients } from '../Clients/ClientScreen';
+import { useQuery } from '@realm/react';
+
 type SelectClientNavigationProp = NativeStackNavigationProp<RootStackParamList, 'SelectClient'>;
 
 export default function SelectClient() {
   const navigation = useNavigation<SelectClientNavigationProp>();
-
-  const [clients] = useState<Client[]>(mockClients);
-
+  const clients = useQuery(Client).sorted('name');
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
 
   const handleSelect = (client: Client) => {
@@ -32,12 +31,12 @@ export default function SelectClient() {
       <Header title="Selecionar Cliente" showBack />
 
       <FlatList
-        data={clients}
-        keyExtractor={(item) => item.id.toString()}
+        data={Array.from(clients)}
+        keyExtractor={(item) => item._id.toHexString()}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 120 }}
         renderItem={({ item }) => {
-          const isSelected = selectedClient?.id === item.id;
+          const isSelected = selectedClient?._id.toHexString() === item._id.toHexString();
           return (
             <ClientCard onPress={() => handleSelect(item)} activeOpacity={0.8}>
               <ClientInfo>

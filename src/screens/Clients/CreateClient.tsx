@@ -9,6 +9,11 @@ import { Picker } from '@react-native-picker/picker';
 import { CameraIcon, ChevronLeft } from 'lucide-react-native';
 import { MaskedTextInput } from 'react-native-mask-text';
 import Header from '../../UI/Header/Header';
+import { launchImageLibrary } from 'react-native-image-picker';
+import { Image } from 'react-native';
+import { useRealm } from '@realm/react';
+import { Client } from '../../database/schemas/ClientSchema';
+import { Realm } from '@realm/react';
 
 const schema = yup.object({
   name: yup.string().required('Nome é obrigatório'),
@@ -68,7 +73,9 @@ type AddressField =
   | { key: 'street'; label: 'Endereço' };
 
 export default function CreateClient() {
+  const [imageUri, setImageUri] = React.useState<string | null>(null);
   const navigation = useNavigation<any>();
+  const realm = useRealm();
   const {
     control,
     handleSubmit,
@@ -110,12 +117,49 @@ export default function CreateClient() {
   }, [cep]);
 
   const onSubmit = (data: FormData) => {
-    console.log(data);
-    Alert.alert('Sucesso', 'Cliente cadastrado!');
-    navigation.goBack();
+    try {
+      realm.write(() => {
+        realm.create('Client', {
+          _id: new Realm.BSON.ObjectId(),
+          name: data.name,
+          cnpj: data.cnpj,
+          email: data.email,
+          phone: data.phone,
+          cep: data.cep,
+          state: data.state,
+          city: data.city,
+          neighborhood: data.neighborhood,
+          street: data.street,
+          number: data.number,
+          photoUri: imageUri || undefined,
+        });
+      });
+      Alert.alert('Sucesso', 'Cliente cadastrado com sucesso!');
+      navigation.goBack();
+    } catch (error) {
+      console.error('Erro ao salvar cliente:', error);
+      Alert.alert('Erro', 'Não foi possível cadastrar o cliente.');
+    }
   };
 
-  const handleUpload = () => Alert.alert('Upload', 'Seletor de imagem');
+  const handleUpload = () => {
+    launchImageLibrary(
+      {
+        mediaType: 'photo',
+        quality: 0.8,
+      },
+      (response) => {
+        if (response.didCancel) {
+          console.log('Usuário cancelou');
+        } else if (response.errorCode) {
+          console.log('Erro: ', response.errorMessage);
+        } else if (response.assets && response.assets.length > 0) {
+          const asset = response.assets[0];
+          setImageUri(asset.uri || null);
+        }
+      },
+    );
+  };
 
   const addressFields: AddressField[] = [
     { key: 'state', label: 'Estado', picker: true },
@@ -131,8 +175,17 @@ export default function CreateClient() {
         <PhotoContainer>
           <TouchableOpacity onPress={handleUpload}>
             <PhotoPlaceholder>
-              <CameraIcon size={28} color="#999" />
-              <PhotoHint>Adicionar foto</PhotoHint>
+              {imageUri ? (
+                <Image
+                  source={{ uri: imageUri }}
+                  style={{ width: 100, height: 100, borderRadius: 50 }}
+                />
+              ) : (
+                <>
+                  <CameraIcon size={28} color="#999" />
+                  <PhotoHint>Adicionar foto</PhotoHint>
+                </>
+              )}
             </PhotoPlaceholder>
           </TouchableOpacity>
         </PhotoContainer>

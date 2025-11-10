@@ -5,7 +5,8 @@ export function getInitials(name: string) {
     : `${parts[0][0]}${parts[0][1] || ''}`.toUpperCase();
 }
 
-export function getColorFromId(id: number) {
+export function getColorFromId(id: number | string) {
   const colors = ['#FF6B6B', '#4ECDC4', '#C86DD7', '#F7B731', '#45AAF2', '#9B59B6', '#26de81'];
-  return colors[id % colors.length];
+  const numId = typeof id === 'string' ? id.charCodeAt(0) : id;
+  return colors[Math.abs(numId) % colors.length];
 }

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FlatList, ActivityIndicator } from 'react-native';
 import styled from 'styled-components/native';
-import { Order } from '../../types/order';
+import { Order } from '../../database/schemas/Order';
 import { getColorFromId, getInitials } from '../../utils/imageCard';
 import { AddButton, AddButtonText } from '../../UI/Buttons';
 import { useNavigation } from '@react-navigation/native';
@@ -47,16 +47,16 @@ const OrdersList = ({ orders, loading }: OrdersListProps) => {
 
       <StyledFlatList
         data={filteredOrders}
-        keyExtractor={(item: Order) => item.id.toString()}
+        keyExtractor={(item: Order) => item._id.toHexString()}
         renderItem={({ item }: { item: Order }) => (
           <OrderItem onPress={() => navigation.navigate('OrderDetails', { order: item })}>
-            <Avatar style={{ backgroundColor: getColorFromId(item.id) }}>
+            <Avatar style={{ backgroundColor: getColorFromId(item._id.toHexString().charCodeAt(0)) }}>
               <AvatarText>{getInitials(item.clientName)}</AvatarText>
             </Avatar>
 
             <OrderDetails>
               <ClientName>{item.clientName}</ClientName>
-              <ProductCount>Qtd. produtos: {item.productCount}</ProductCount>
+              <ProductCount>Qtd. produtos: {item.productCount ?? 0}</ProductCount>
             </OrderDetails>
 
             <OrderValue>R$ {item.totalValue.toFixed(2)}</OrderValue>

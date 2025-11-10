@@ -3,7 +3,7 @@ import React from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import styled from 'styled-components/native';
 import { ChevronLeft } from 'lucide-react-native';
-import { Client } from '../../types/client';
+import { Client } from '../../database/schemas/ClientSchema';
 import Header from '../../UI/Header/Header';
 
 const ClientDetails = () => {
@@ -19,8 +19,12 @@ const ClientDetails = () => {
       <Content>
         <Section>
           <InfoRow>
-            <Label>CPNJ</Label>
+            <Label>CNPJ</Label>
             <Value>{client.cnpj}</Value>
+          </InfoRow>
+          <InfoRow>
+            <Label>E-mail</Label>
+            <Value>{client.email}</Value>
           </InfoRow>
           <InfoRow>
             <Label>Telefone</Label>
@@ -44,7 +48,7 @@ const ClientDetails = () => {
           </InfoRow>
           <InfoRow>
             <Label>Endereço</Label>
-            <Value>{client.address}</Value>
+            <Value>{client.street}</Value>
           </InfoRow>
           <InfoRow>
             <Label>Número</Label>

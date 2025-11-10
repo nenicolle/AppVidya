@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FlatList, ActivityIndicator } from 'react-native';
 import styled from 'styled-components/native';
-import { Client } from '../../types/client';
+import { Client } from '../../database/schemas/ClientSchema';
 import { Search } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -49,10 +49,10 @@ const ClientsList = ({ clients, loading }: ClientsListProps) => {
       <FlatList
         contentContainerStyle={{ paddingBottom: 100 }}
         data={filteredClients}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item._id.toHexString()}
         renderItem={({ item }) => (
           <ClientItem onPress={() => handleClientPress(item)}>
-            <Avatar style={{ backgroundColor: getColorFromId(item.id) }}>
+            <Avatar style={{ backgroundColor: getColorFromId(item._id.toHexString().charCodeAt(0)) }}>
               <AvatarText>{getInitials(item.name)}</AvatarText>
             </Avatar>
             <ClientInfo>
