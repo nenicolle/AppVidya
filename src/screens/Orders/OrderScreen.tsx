@@ -3,8 +3,8 @@ import styled from 'styled-components/native';
 import OrdersList from '../../screens/Orders/OrdersList';
 import NavigationBar from '../../UI/NavigationBar';
 import Header from '../../UI/Header/Header';
-import { useQuery } from '@realm/react';
 import { Order } from '../../database/schemas/Order';
+import { useQuery } from '@realm/react';
 
 const OrdersScreen = () => {
   const orders = useQuery(Order).sorted('createdAt', true);

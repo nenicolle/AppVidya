@@ -7,17 +7,20 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types/navigation';
 import { getColorFromId, getInitials } from '../../utils/imageCard';
+import { useQuery, useRealm } from '@realm/react';
 
 interface ClientsListProps {
   clients: Client[];
   loading?: boolean;
 }
 
-const ClientsList = ({ clients, loading }: ClientsListProps) => {
-  const [search, setSearch] = useState('');
-
+const ClientsList = () => {
+  const realm = useRealm();
+  const clients = useQuery(Client).sorted('name'); // Realm Results
+  const [loading, setLoading] = useState(false);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
+  const [search, setSearch] = useState('');
   const filteredClients = clients.filter((client) =>
     client.name.toLowerCase().includes(search.toLowerCase()),
   );
@@ -25,7 +28,6 @@ const ClientsList = ({ clients, loading }: ClientsListProps) => {
   const handleClientPress = (client: Client) => {
     navigation.navigate('ClientDetails', { client });
   };
-
   if (loading) {
     return (
       <LoadingContainer>
@@ -52,9 +54,20 @@ const ClientsList = ({ clients, loading }: ClientsListProps) => {
         keyExtractor={(item) => item._id.toHexString()}
         renderItem={({ item }) => (
           <ClientItem onPress={() => handleClientPress(item)}>
-            <Avatar style={{ backgroundColor: getColorFromId(item._id.toHexString().charCodeAt(0)) }}>
-              <AvatarText>{getInitials(item.name)}</AvatarText>
-            </Avatar>
+            <AvatarContainer>
+              {item.photoUri ? (
+                <ClientPhoto source={{ uri: item.photoUri }} resizeMode="cover" />
+              ) : (
+                <Avatar
+                  style={{
+                    backgroundColor: getColorFromId(item._id.toHexString().charCodeAt(0)),
+                  }}
+                >
+                  <AvatarText>{getInitials(item.name)}</AvatarText>
+                </Avatar>
+              )}
+            </AvatarContainer>
+
             <ClientInfo>
               <ClientName>{item.name}</ClientName>
               <ClientPhone>{item.cnpj}</ClientPhone>
@@ -109,7 +122,20 @@ const Avatar = styled.View`
   align-items: center;
   margin-right: 12px;
 `;
+const AvatarContainer = styled.View`
+  width: 50px;
+  height: 50px;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-right: 12px;
+  justify-content: center;
+  align-items: center;
+`;
 
+const ClientPhoto = styled.Image`
+  width: 100%;
+  height: 100%;
+`;
 const AvatarText = styled.Text`
   color: #fff;
   font-size: 18px;

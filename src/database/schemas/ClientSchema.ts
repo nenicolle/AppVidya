@@ -4,7 +4,6 @@ export class Client extends Realm.Object<Client> {
   _id!: Realm.BSON.ObjectId;
   name!: string;
   cnpj!: string;
-  email!: string;
   phone!: string;
   cep!: string;
   state!: string;
@@ -21,7 +20,6 @@ export class Client extends Realm.Object<Client> {
       _id: 'objectId',
       name: 'string',
       cnpj: 'string',
-      email: 'string',
       phone: 'string',
       cep: 'string',
       state: 'string',

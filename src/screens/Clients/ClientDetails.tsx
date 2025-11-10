@@ -23,10 +23,6 @@ const ClientDetails = () => {
             <Value>{client.cnpj}</Value>
           </InfoRow>
           <InfoRow>
-            <Label>E-mail</Label>
-            <Value>{client.email}</Value>
-          </InfoRow>
-          <InfoRow>
             <Label>Telefone</Label>
             <Value>{client.phone}</Value>
           </InfoRow>

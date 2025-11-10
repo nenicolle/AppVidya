@@ -1,20 +1,19 @@
-import { Product } from '../types/Products';
-import { Client } from './client';
-import { Order } from './order';
-
 export type RootStackParamList = {
   Home: undefined;
-  //PRODUTOS ===============
+
+  // PRODUTOS
   Products: undefined;
-  ProductDetails: { product: Product };
+  ProductDetails: { productId: string };
   CreateProduct: undefined;
-  //CLIENTES ===============
+
+  // CLIENTES
   Clients: undefined;
-  ClientDetails: { client: Client };
+  ClientDetails: { clientId: string };
   CreateClient: undefined;
-  //PEDIDOS ===============
+
+  // PEDIDOS
   Orders: undefined;
-  OrderDetails: { order: Order };
-  CreateOrder: { client: Client };
+  OrderDetails: { orderId: string };
+  CreateOrder: { clientId: string } | undefined;
   SelectClient: undefined;
 };

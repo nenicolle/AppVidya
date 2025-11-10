@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FlatList } from 'react-native';
+import { FlatList, ActivityIndicator } from 'react-native';
 import styled from 'styled-components/native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -8,85 +8,29 @@ import NavigationBar from '../../UI/NavigationBar';
 import { AddButton, AddButtonText } from '../../UI/Buttons';
 import { Search } from 'lucide-react-native';
 import Header from '../../UI/Header/Header';
-import { Product } from '../../types/Products';
+import { Product } from '../../database/schemas/Product';
+import { useRealm } from '@realm/react';
 
 type ProductsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Products'>;
 
 export default function ProductsScreen() {
   const navigation = useNavigation<ProductsScreenNavigationProp>();
+  const realm = useRealm();
   const [search, setSearch] = useState('');
-  const [products] = useState<Product[]>([
-    {
-      id: '1',
-      name: 'Camiseta',
-      price: 49.9,
-      image: 'https://via.placeholder.com/100',
-      description: 'Camiseta confortável para usar no dia a dia.',
-    },
-    {
-      id: '2',
-      name: 'Calça Jeans',
-      price: 189.9,
-      image: 'https://via.placeholder.com/100',
-      description: 'Calça jeans estilosa que combina com tudo.',
-    },
-    {
-      id: '3',
-      name: 'Tênis',
-      price: 299.9,
-      image: 'https://via.placeholder.com/100',
-      description: 'Tênis leve e moderno para todas as ocasiões.',
-    },
-    {
-      id: '4',
-      name: 'Relógio',
-      price: 399.9,
-      image: 'https://via.placeholder.com/100',
-      description: 'Relógio elegante para quem gosta de pontualidade com estilo.',
-    },
-    {
-      id: '5',
-      name: 'Livro A',
-      price: 29.9,
-      image: 'https://via.placeholder.com/100',
-      description: 'Um livro envolvente que vai te prender do início ao fim.',
-    },
-    {
-      id: '6',
-      name: 'Caderno',
-      price: 12.5,
-      image: 'https://via.placeholder.com/100',
-      description: 'Caderno simples, mas cheio de espaço para boas ideias.',
-    },
-    {
-      id: '7',
-      name: 'Caneta',
-      price: 3.9,
-      image: 'https://via.placeholder.com/100',
-      description: 'Caneta macia e precisa — porque escrever bem é essencial.',
-    },
-    {
-      id: '8',
-      name: 'Mochila',
-      price: 149.9,
-      image: 'https://via.placeholder.com/100',
-      description: 'Mochila espaçosa, perfeita para o dia de trabalho ou estudo.',
-    },
-    {
-      id: '9',
-      name: 'Fone Bluetooth',
-      price: 199.9,
-      image: 'https://via.placeholder.com/100',
-      description: 'Fone sem fio com som potente e bateria de longa duração.',
-    },
-    {
-      id: '10',
-      name: 'Mouse',
-      price: 79.9,
-      image: 'https://via.placeholder.com/100',
-      description: 'Mouse ergonômico que desliza suave em qualquer superfície.',
-    },
-  ]);
+  const [loading, setLoading] = useState(false);
+  if (loading || !realm) {
+    return (
+      <LoadingContainer>
+        <ActivityIndicator size="large" color="#007aff" />
+      </LoadingContainer>
+    );
+  }
+
+  // Busca no Realm
+  const allProducts = realm.objects<Product>('Product');
+  const filteredProducts = search
+    ? allProducts.filtered('name CONTAINS[c] $0', search)
+    : allProducts;
 
   return (
     <Container>
@@ -102,20 +46,28 @@ export default function ProductsScreen() {
       </SearchContainer>
 
       <FlatList
-        data={products.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))}
-        keyExtractor={(item) => item.id}
+        data={filteredProducts}
+        keyExtractor={(item) => item._id.toHexString()}
         numColumns={2}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 100 }}
         renderItem={({ item }) => (
-          <ProductCard onPress={() => navigation.navigate('ProductDetails', { product: item })}>
-            <ProductImage source={{ uri: item.image }} />
+          <ProductCard
+            onPress={() =>
+              navigation.navigate('ProductDetails', { productId: item._id.toHexString() })
+            }
+          >
+            <ProductImage
+              source={{ uri: item.image || 'https://via.placeholder.com/100' }}
+              resizeMode="cover"
+            />
             <ProductInformation>
-              <ProductName>{item.name}</ProductName>
+              <ProductName numberOfLines={1}>{item.name}</ProductName>
               <ProductPrice>R$ {item.price.toFixed(2)}</ProductPrice>
             </ProductInformation>
           </ProductCard>
         )}
+        ListEmptyComponent={<EmptyText>Nenhum produto encontrado</EmptyText>}
       />
 
       <AddButton onPress={() => navigation.navigate('CreateProduct')}>
@@ -125,7 +77,6 @@ export default function ProductsScreen() {
     </Container>
   );
 }
-
 const Container = styled.SafeAreaView`
   flex: 1;
   background-color: #fff;
@@ -147,7 +98,11 @@ const SearchContainer = styled.View`
   height: 40px;
   margin-bottom: 16px;
 `;
-
+const LoadingContainer = styled.View`
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+`;
 const SearchInput = styled.TextInput`
   flex: 1;
   color: #333;
@@ -176,7 +131,12 @@ const ProductName = styled.Text`
   font-size: 14px;
   color: #222;
 `;
-
+const EmptyText = styled.Text`
+  text-align: center;
+  margin-top: 40px;
+  color: #888;
+  font-size: 16px;
+`;
 const ProductPrice = styled.Text`
   font-size: 15px;
   font-weight: 700;

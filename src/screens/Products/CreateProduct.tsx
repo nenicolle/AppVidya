@@ -1,91 +1,229 @@
-import React, { useState } from 'react';
-import { Alert, TextInputProps, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { Alert, TouchableOpacity, ScrollView, Image } from 'react-native';
 import styled from 'styled-components/native';
 import { useNavigation } from '@react-navigation/native';
-import { CameraIcon, ChevronLeft } from 'lucide-react-native';
+import { useForm, Controller } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import { CameraIcon } from 'lucide-react-native';
+import { launchImageLibrary } from 'react-native-image-picker';
 import Header from '../../UI/Header/Header';
+import Realm from 'realm';
+import { realmConfig } from '../../realm/config';
+import { Product } from '../../database/schemas/Product';
+import { getRealm } from '../../database/realmInstance';
+
+// Validação
+const schema = yup.object({
+  name: yup.string().required('Nome é obrigatório'),
+  price: yup
+    .number()
+    .typeError('Preço deve ser um número')
+    .positive('Preço deve ser positivo')
+    .required('Preço é obrigatório'),
+  description: yup.string().required('Descrição é obrigatória'),
+});
+
+type FormData = yup.InferType<typeof schema>;
 
 export default function CreateProduct() {
-  const navigation = useNavigation();
-  const [name, setName] = useState('');
-  const [price, setPrice] = useState('');
-  const [description, setDescription] = useState('');
-  // const [image, setImage] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigation = useNavigation<any>();
+  const [imageUri, setImageUri] = React.useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  const handleSave = () => {
-    if (!name || !price) {
-      Alert.alert('Atenção', 'Preencha o nome e o preço do produto.');
-      return;
-    }
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      name: '',
+      price: undefined,
+      description: '',
+    },
+  });
 
+  const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
-    setTimeout(() => {
+
+    try {
+      const realm = await getRealm();
+      realm.write(() => {
+        realm.create<Product>('Product', {
+          _id: new Realm.BSON.ObjectId(),
+          name: data.name,
+          price: data.price,
+          description: data.description,
+          image: imageUri || undefined,
+        });
+      });
+
       Alert.alert('Sucesso', 'Produto cadastrado com sucesso!');
-      setIsSubmitting(false);
       navigation.goBack();
-    }, 1000);
+    } catch (error) {
+      console.error('Erro ao salvar produto:', error);
+      Alert.alert('Erro', 'Não foi possível salvar o produto.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   const handleUpload = () => {
-    Alert.alert('Upload', 'SELETOR DE IMAGEM AQUI');
+    launchImageLibrary(
+      {
+        mediaType: 'photo',
+        quality: 0.8,
+        includeBase64: false,
+      },
+      (response) => {
+        if (response.didCancel) {
+          console.log('Cancelado');
+        } else if (response.errorCode) {
+          Alert.alert('Erro', response.errorMessage || 'Erro ao selecionar imagem');
+        } else if (response.assets?.[0]?.uri) {
+          setImageUri(response.assets[0].uri);
+        }
+      },
+    );
   };
 
   return (
     <Container>
-      <Header title="Cadastro de produto" showBack />
+      <Header title="Cadastro de Produto" showBack />
 
-      <Content>
-        <Label>Nome</Label>
-        <Input placeholder="Digite o nome do produto" value={name} onChangeText={setName} />
-
-        <Label>Preço</Label>
-        <Input placeholder="0,00" keyboardType="numeric" value={price} onChangeText={setPrice} />
-
-        <Label>Descrição</Label>
-        <TextArea
-          multiline
-          numberOfLines={4}
-          textAlignVertical="top"
-          placeholder="Adicione uma descrição"
-          value={description}
-          onChangeText={setDescription}
-        />
-
-        <Label>Foto do produto</Label>
-        <UploadContainer>
+      <ScrollContainer contentContainerStyle={{ paddingBottom: 100 }}>
+        {/* Foto */}
+        <PhotoSection>
           <TouchableOpacity onPress={handleUpload}>
-            <UploadButton>
-              <CameraIcon size={24} />
-              <UploadText>Faça o upload da foto</UploadText>
-            </UploadButton>
+            <PhotoPlaceholder>
+              {imageUri ? (
+                <PreviewImage source={{ uri: imageUri }} resizeMode="cover" />
+              ) : (
+                <>
+                  <CameraIcon size={32} color="#999" />
+                  <PhotoHint>Adicionar foto</PhotoHint>
+                </>
+              )}
+            </PhotoPlaceholder>
           </TouchableOpacity>
-          <UploadHint>JPG e PNG, somente</UploadHint>
-        </UploadContainer>
-      </Content>
+          <UploadHint>JPG ou PNG • Máximo 5MB</UploadHint>
+        </PhotoSection>
+
+        {/* Formulário */}
+        <FormField label="Nome" error={errors.name?.message}>
+          <Controller
+            control={control}
+            name="name"
+            render={({ field }) => (
+              <Input
+                placeholder="Ex: Camiseta Algodão"
+                value={field.value}
+                onChangeText={field.onChange}
+              />
+            )}
+          />
+        </FormField>
+
+        <FormField label="Preço" error={errors.price?.message}>
+          <Controller
+            control={control}
+            name="price"
+            render={({ field }) => (
+              <Input
+                placeholder="0,00"
+                keyboardType="numeric"
+                value={field.value?.toString() || ''}
+                onChangeText={(text) => {
+                  const num = parseFloat(text.replace(',', '.'));
+                  field.onChange(isNaN(num) ? '' : num);
+                }}
+              />
+            )}
+          />
+        </FormField>
+
+        <FormField label="Descrição" error={errors.description?.message}>
+          <Controller
+            control={control}
+            name="description"
+            render={({ field }) => (
+              <TextArea
+                multiline
+                numberOfLines={4}
+                placeholder="Descreva o produto..."
+                value={field.value}
+                onChangeText={field.onChange}
+              />
+            )}
+          />
+        </FormField>
+      </ScrollContainer>
 
       <Footer>
-        <SaveButton onPress={handleSave} disabled={isSubmitting}>
-          <SaveText>{isSubmitting ? 'Salvando...' : 'Salvar'}</SaveText>
+        <SaveButton onPress={handleSubmit(onSubmit)} disabled={isSubmitting}>
+          <SaveText>{isSubmitting ? 'Salvando...' : 'Salvar Produto'}</SaveText>
         </SaveButton>
       </Footer>
     </Container>
   );
 }
-
 const Container = styled.View`
   flex: 1;
   background-color: #fff;
 `;
 
-const Content = styled.ScrollView`
+const ScrollContainer = styled.ScrollView`
   flex: 1;
   padding: 20px;
 `;
-const Footer = styled.View`
-  padding: 20px;
-  position: absolute;
-  bottom: 0;
+
+const PhotoSection = styled.View`
+  align-items: center;
+  margin-bottom: 24px;
+`;
+
+const PhotoPlaceholder = styled.View`
+  width: 120px;
+  height: 120px;
+  border-radius: 60px;
+  background-color: #f0f0f0;
+  border: 2px dashed #ccc;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+`;
+
+const PreviewImage = styled.Image`
   width: 100%;
+  height: 100%;
+`;
+
+const PhotoHint = styled.Text`
+  font-size: 13px;
+  color: #999;
+  margin-top: 6px;
+`;
+
+const UploadHint = styled.Text`
+  font-size: 12px;
+  color: #999;
+  margin-top: 8px;
+`;
+
+const FormField: React.FC<{ label: string; error?: string; children: React.ReactNode }> = ({
+  label,
+  error,
+  children,
+}) => (
+  <FieldWrapper>
+    <Label>{label}</Label>
+    {children}
+    {error && <ErrorText>{error}</ErrorText>}
+  </FieldWrapper>
+);
+
+const FieldWrapper = styled.View`
+  margin-bottom: 16px;
 `;
 
 const Label = styled.Text`
@@ -95,12 +233,12 @@ const Label = styled.Text`
   color: #000;
 `;
 
-const Input = styled.TextInput<TextInputProps>`
+const Input = styled.TextInput`
   border: 1px solid #e1e1e1;
   border-radius: 8px;
   padding: 12px;
   font-size: 16px;
-  margin-bottom: 16px;
+  background-color: #fafafa;
 `;
 
 const TextArea = styled.TextInput`
@@ -109,43 +247,29 @@ const TextArea = styled.TextInput`
   padding: 12px;
   font-size: 16px;
   height: 100px;
-  margin-bottom: 16px;
+  text-align-vertical: top;
+  background-color: #fafafa;
 `;
 
-const UploadContainer = styled.View`
-  border: 2px dashed #ccc;
-  border-radius: 12px;
-  padding: 20px;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 24px;
-`;
-
-const UploadButton = styled.View`
-  flex-direction: row;
-  background-color: #007aff;
-  border-radius: 8px;
-  padding: 10px 16px;
-  align-items: center;
-`;
-
-const UploadText = styled.Text`
-  color: #fff;
-  font-weight: 600;
-  margin-left: 6px;
-`;
-
-const UploadHint = styled.Text`
+const ErrorText = styled.Text`
+  color: #e74c3c;
   font-size: 12px;
-  color: #999;
-  margin-top: 8px;
+  margin-top: 4px;
 `;
 
-const SaveButton = styled.TouchableOpacity`
+const Footer = styled.View`
+  padding: 20px;
+  background-color: #fff;
+  border-top-width: 1px;
+  border-color: #eee;
+`;
+
+const SaveButton = styled.TouchableOpacity<{ disabled?: boolean }>`
   background-color: #007aff;
   padding: 16px;
   border-radius: 10px;
   align-items: center;
+  opacity: ${(p) => (p.disabled ? 0.6 : 1)};
 `;
 
 const SaveText = styled.Text`

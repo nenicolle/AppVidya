@@ -21,7 +21,6 @@ const schema = yup.object({
     .string()
     .matches(/^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/, 'CNPJ inválido')
     .required('CNPJ é obrigatório'),
-  email: yup.string().email('E-mail inválido').required('E-mail é obrigatório'),
   phone: yup.string().required('Telefone é obrigatório'),
   cep: yup
     .string()
@@ -87,7 +86,6 @@ export default function CreateClient() {
     defaultValues: {
       name: '',
       cnpj: '',
-      email: '',
       phone: '',
       cep: '',
       state: '',
@@ -123,7 +121,6 @@ export default function CreateClient() {
           _id: new Realm.BSON.ObjectId(),
           name: data.name,
           cnpj: data.cnpj,
-          email: data.email,
           phone: data.phone,
           cep: data.cep,
           state: data.state,
@@ -134,6 +131,7 @@ export default function CreateClient() {
           photoUri: imageUri || undefined,
         });
       });
+
       Alert.alert('Sucesso', 'Cliente cadastrado com sucesso!');
       navigation.goBack();
     } catch (error) {
