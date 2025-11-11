@@ -165,10 +165,6 @@ cd AppVidya
 
 # 2. Instale as dependências
 
-yarn install
-
-# ou
-
 npm install
 
 # 3. Inicie o Metro Bundler
