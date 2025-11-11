@@ -1,16 +1,22 @@
-// ClientDetails.tsx
 import React from 'react';
-import { useNavigation, useRoute } from '@react-navigation/native';
 import styled from 'styled-components/native';
-import { ChevronLeft } from 'lucide-react-native';
+import { useRoute, RouteProp } from '@react-navigation/native';
+import { useQuery } from '@realm/react';
+import Realm from 'realm';
 import { Client } from '../../database/schemas/ClientSchema';
+import { RootStackParamList } from '../../types/navigation';
 import Header from '../../UI/Header/Header';
 
-const ClientDetails = () => {
-  const route = useRoute<any>();
-  const navigation = useNavigation();
-  const client: Client = route.params?.client;
+type ClientDetailsRouteProp = RouteProp<RootStackParamList, 'ClientDetails'>;
 
+const ClientDetails = () => {
+  const route = useRoute<ClientDetailsRouteProp>();
+  const { clientId } = route.params || {};
+
+  const client = useQuery(Client).filtered(
+    '_id == $0',
+    clientId ? new Realm.BSON.ObjectId(clientId) : null,
+  )[0];
   if (!client) return null;
 
   return (
