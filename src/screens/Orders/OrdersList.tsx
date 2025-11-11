@@ -8,6 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../../types/navigation';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Search } from 'lucide-react-native';
+import SearchBar from '../../UI/Search/SearchBar';
 
 interface OrdersListProps {
   orders: Order[];
@@ -22,7 +23,7 @@ const StyledFlatList = styled(FlatList<Order>)`
 `;
 
 const OrdersList = ({ orders, loading, onOrderPress }: OrdersListProps) => {
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = React.useState('');
   const navigation = useNavigation<OrderScreenNavigationProp>();
 
   const filteredOrders = useMemo(() => {
@@ -51,17 +52,7 @@ const OrdersList = ({ orders, loading, onOrderPress }: OrdersListProps) => {
 
   return (
     <Container>
-      <SearchContainer>
-        <Search size={24} color="#888" />
-        <SearchInput
-          placeholder="Buscar por cliente, status ou ID..."
-          placeholderTextColor="#aaa"
-          value={search}
-          onChangeText={setSearch}
-          autoCorrect={false}
-        />
-      </SearchContainer>
-
+      <SearchBar placeholder="Buscar por pedido..." value={search} onChangeText={setSearch} />
       <StyledFlatList
         data={filteredOrders}
         keyExtractor={(item) => item._id.toHexString()}
@@ -117,6 +108,7 @@ export default OrdersList;
 const Container = styled.SafeAreaView`
   flex: 1;
   background-color: #fff;
+  padding: 16px;
 `;
 
 const SearchContainer = styled.View`

@@ -326,10 +326,10 @@ export default function CreateClient() {
   );
 }
 
-// === ESTILOS ===
 const Container = styled.View`
   flex: 1;
-  background: #fff;
+  background-color: #fff;
+  padding: 16px;
 `;
 
 const ScrollContainer = styled.ScrollView`

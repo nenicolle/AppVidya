@@ -98,9 +98,11 @@ export default function ProductDetailsScreen() {
     </Container>
   );
 }
+
 const Container = styled.ScrollView`
   flex: 1;
-  background-color: #ffffff;
+  background-color: #fff;
+  padding: 16px;
 `;
 
 const HeaderArea = styled.View`

@@ -164,6 +164,7 @@ export default function CreateProduct() {
 const Container = styled.View`
   flex: 1;
   background-color: #fff;
+  padding: 16px;
 `;
 
 const ScrollContainer = styled.ScrollView`

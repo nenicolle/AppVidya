@@ -100,6 +100,7 @@ export default function OrderDetails() {
 const Container = styled.ScrollView`
   flex: 1;
   background-color: #fff;
+  padding: 16px;
 `;
 
 const ClientCard = styled.View`

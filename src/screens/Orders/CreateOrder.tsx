@@ -156,7 +156,8 @@ const ErrorText = styled.Text`
 `;
 const Container = styled.View`
   flex: 1;
-  background: #fff;
+  background-color: #fff;
+  padding: 16px;
 `;
 const ClientSection = styled.View`
   padding: 16px;

@@ -8,6 +8,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types/navigation';
 import { getColorFromId, getInitials } from '../../utils/imageCard';
 import { useQuery, useRealm } from '@realm/react';
+import SearchBar from '../../UI/Search/SearchBar';
 
 interface ClientsListProps {
   clients: Client[];
@@ -16,7 +17,7 @@ interface ClientsListProps {
 
 const ClientsList = () => {
   const realm = useRealm();
-  const clients = useQuery(Client).sorted('name'); // Realm Results
+  const clients = useQuery(Client).sorted('name');
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
@@ -26,7 +27,7 @@ const ClientsList = () => {
   );
 
   const handleClientPress = (client: Client) => {
-    navigation.navigate('ClientDetails', { client });
+    navigation.navigate('ClientDetails', { clientId: client._id.toString() });
   };
   if (loading) {
     return (
@@ -38,15 +39,7 @@ const ClientsList = () => {
 
   return (
     <Container>
-      <SearchContainer>
-        <Search size={24} color="#333" />
-        <SearchInput
-          placeholder="Buscar cliente..."
-          placeholderTextColor="#999"
-          value={search}
-          onChangeText={setSearch}
-        />
-      </SearchContainer>
+      <SearchBar placeholder="Buscar por cliente..." value={search} onChangeText={setSearch} />
 
       <FlatList
         contentContainerStyle={{ paddingBottom: 100 }}
@@ -85,22 +78,7 @@ export default ClientsList;
 const Container = styled.SafeAreaView`
   flex: 1;
   background-color: #fff;
-`;
-
-const SearchContainer = styled.View`
-  background-color: #f9f9f9;
-  flex-direction: row;
-  align-items: center;
-  border-radius: 12px;
-  padding: 0px 14px;
-  height: 40px;
-  margin-bottom: 20px;
-`;
-
-const SearchInput = styled.TextInput`
-  flex: 1;
-  color: #333;
-  font-size: 16px;
+  padding: 16px;
 `;
 
 const ClientItem = styled.TouchableOpacity`

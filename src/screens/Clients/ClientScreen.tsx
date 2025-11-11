@@ -31,4 +31,5 @@ export default function ClientsScreen() {
 const Container = styled.SafeAreaView`
   flex: 1;
   background-color: #fff;
+  padding: 16px;
 `;

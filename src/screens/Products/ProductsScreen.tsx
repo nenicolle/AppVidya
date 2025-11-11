@@ -10,12 +10,13 @@ import { Search } from 'lucide-react-native';
 import Header from '../../UI/Header/Header';
 import { Product } from '../../database/schemas/Product';
 import { useQuery, useRealm } from '@realm/react';
+import SearchBar from '../../UI/Search/SearchBar';
 
 type ProductsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Products'>;
 
 export default function ProductsScreen() {
   const navigation = useNavigation<ProductsScreenNavigationProp>();
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = React.useState('');
   const realm = useRealm();
   const allProducts = useQuery(Product);
   const filteredProducts = search
@@ -33,16 +34,7 @@ export default function ProductsScreen() {
   return (
     <Container>
       <Header title="Produtos" />
-
-      <SearchContainer>
-        <Search size={24} color="#333" />
-        <SearchInput
-          placeholder="Pesquisar produto..."
-          placeholderTextColor="#999"
-          value={search}
-          onChangeText={setSearch}
-        />
-      </SearchContainer>
+      <SearchBar placeholder="Buscar por cliente..." value={search} onChangeText={setSearch} />
 
       <FlatList
         data={filteredProducts}
@@ -96,15 +88,6 @@ const ProductInformation = styled.View`
   padding: 10px 15px;
 `;
 
-const SearchContainer = styled.View`
-  background-color: #f9f9f9;
-  flex-direction: row;
-  align-items: center;
-  border-radius: 12px;
-  padding: 00px 14px;
-  height: 40px;
-  margin-bottom: 16px;
-`;
 const ProductCode = styled.Text`
   font-size: 12px;
   color: #666;
@@ -114,11 +97,6 @@ const LoadingContainer = styled.View`
   flex: 1;
   justify-content: center;
   align-items: center;
-`;
-const SearchInput = styled.TextInput`
-  flex: 1;
-  color: #333;
-  font-size: 16px;
 `;
 
 const ProductCard = styled.TouchableOpacity`

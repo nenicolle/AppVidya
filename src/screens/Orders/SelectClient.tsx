@@ -85,6 +85,7 @@ export default function SelectClient() {
 const Container = styled.SafeAreaView`
   flex: 1;
   background-color: #fff;
+  padding: 16px;
 `;
 
 const ClientCard = styled.TouchableOpacity`
