@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { FlatList, ActivityIndicator } from 'react-native';
+import React, { useState, useMemo } from 'react';
+import { FlatList, ActivityIndicator, Image } from 'react-native'; // <-- Adicionado Image
 import styled from 'styled-components/native';
 import { Order } from '../../database/schemas/Order';
 import { getColorFromId, getInitials } from '../../utils/imageCard';
@@ -12,18 +12,34 @@ import { Search } from 'lucide-react-native';
 interface OrdersListProps {
   orders: Order[];
   loading?: boolean;
-  onOrderPress: (order: Order) => void;
+  onOrderPress?: (order: Order) => void;
 }
 
 type OrderScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Orders'>;
 
-const OrdersList = ({ orders, loading }: OrdersListProps) => {
+const StyledFlatList = styled(FlatList<Order>)`
+  flex: 1;
+`;
+
+const OrdersList = ({ orders, loading, onOrderPress }: OrdersListProps) => {
   const [search, setSearch] = useState('');
   const navigation = useNavigation<OrderScreenNavigationProp>();
 
-  const filteredOrders = orders.filter((order) =>
-    order.clientName.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filteredOrders = useMemo(() => {
+    if (!search.trim()) return orders;
+
+    const searchLower = search.toLowerCase();
+
+    return orders.filter((order) => {
+      const clientName = order.client?.name?.toLowerCase() || '';
+      const status = order.status?.toLowerCase() || '';
+      const id = order._id.toHexString().toLowerCase();
+
+      return (
+        clientName.includes(searchLower) || status.includes(searchLower) || id.includes(searchLower)
+      );
+    });
+  }, [orders, search]);
 
   if (loading) {
     return (
@@ -36,33 +52,57 @@ const OrdersList = ({ orders, loading }: OrdersListProps) => {
   return (
     <Container>
       <SearchContainer>
-        <Search size={24} color="#333" />
+        <Search size={24} color="#888" />
         <SearchInput
-          placeholder="Buscar cliente..."
-          placeholderTextColor="#999"
+          placeholder="Buscar por cliente, status ou ID..."
+          placeholderTextColor="#aaa"
           value={search}
           onChangeText={setSearch}
+          autoCorrect={false}
         />
       </SearchContainer>
 
       <StyledFlatList
         data={filteredOrders}
-        keyExtractor={(item: Order) => item._id.toHexString()}
-        renderItem={({ item }: { item: Order }) => (
-          <OrderItem onPress={() => navigation.navigate('OrderDetails', { order: item })}>
-            <Avatar style={{ backgroundColor: getColorFromId(item._id.toHexString().charCodeAt(0)) }}>
-              <AvatarText>{getInitials(item.clientName)}</AvatarText>
-            </Avatar>
+        keyExtractor={(item) => item._id.toHexString()}
+        renderItem={({ item }: { item: Order }) => {
+          const hasPhoto = !!item.client?.photoUri;
 
-            <OrderDetails>
-              <ClientName>{item.clientName}</ClientName>
-              <ProductCount>Qtd. produtos: {item.productCount ?? 0}</ProductCount>
-            </OrderDetails>
+          return (
+            <OrderItem
+              onPress={() => {
+                onOrderPress?.(item);
+                navigation.navigate('OrderDetails', {
+                  orderId: item._id.toHexString(),
+                });
+              }}
+            >
+              {hasPhoto ? (
+                <ClientImage source={{ uri: item.client!.photoUri }} resizeMode="cover" />
+              ) : (
+                <Avatar
+                  style={{
+                    backgroundColor: getColorFromId(item._id.toHexString().charCodeAt(0)),
+                  }}
+                >
+                  <AvatarText>{getInitials(item.client?.name || '??')}</AvatarText>
+                </Avatar>
+              )}
 
-            <OrderValue>R$ {item.totalValue.toFixed(2)}</OrderValue>
-          </OrderItem>
-        )}
-        ListEmptyComponent={<EmptyText>Nenhum pedido encontrado</EmptyText>}
+              <OrderDetails>
+                <ClientName>{item.client?.name || 'Cliente excluído'}</ClientName>
+                <ProductCount>Qtd. produtos: {item.productCount ?? 0}</ProductCount>
+              </OrderDetails>
+
+              <OrderValue>R$ {item.totalValue.toFixed(2)}</OrderValue>
+            </OrderItem>
+          );
+        }}
+        ListEmptyComponent={
+          <EmptyText>
+            {search ? 'Nenhum pedido encontrado para a busca.' : 'Nenhum pedido cadastrado.'}
+          </EmptyText>
+        }
       />
 
       <AddButton onPress={() => navigation.navigate('SelectClient')}>
@@ -84,28 +124,32 @@ const SearchContainer = styled.View`
   flex-direction: row;
   align-items: center;
   border-radius: 12px;
-  padding: 0px 14px;
-  height: 40px;
-  margin-bottom: 20px;
+  padding: 0 14px;
+  height: 48px;
+  margin: 16px 16px 8px;
+  border: 1px solid #eee;
 `;
 
 const SearchInput = styled.TextInput`
   flex: 1;
   color: #333;
   font-size: 16px;
+  margin-left: 8px;
 `;
 
 const OrderItem = styled.TouchableOpacity`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 20px;
+  padding: 14px 16px;
+  border-bottom-width: 1px;
+  border-bottom-color: #f0f0f0;
 `;
 
 const Avatar = styled.View`
   width: 50px;
   height: 50px;
-  border-radius: 20px;
+  border-radius: 15px;
   justify-content: center;
   align-items: center;
   margin-right: 12px;
@@ -115,6 +159,14 @@ const AvatarText = styled.Text`
   color: #fff;
   font-weight: bold;
   font-size: 16px;
+`;
+
+const ClientImage = styled(Image)`
+  width: 50px;
+  height: 50px;
+  border-radius: 15px;
+  margin-right: 12px;
+  background-color: #f0f0f0;
 `;
 
 const OrderDetails = styled.View`
@@ -150,8 +202,5 @@ const EmptyText = styled.Text`
   margin-top: 40px;
   color: #888;
   font-size: 16px;
-`;
-
-const StyledFlatList = styled(FlatList as new (props: any) => FlatList<Order>)`
-  flex: 1;
+  padding-horizontal: 20px;
 `;

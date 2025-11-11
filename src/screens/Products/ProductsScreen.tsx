@@ -9,16 +9,20 @@ import { AddButton, AddButtonText } from '../../UI/Buttons';
 import { Search } from 'lucide-react-native';
 import Header from '../../UI/Header/Header';
 import { Product } from '../../database/schemas/Product';
-import { useRealm } from '@realm/react';
+import { useQuery, useRealm } from '@realm/react';
 
 type ProductsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Products'>;
 
 export default function ProductsScreen() {
   const navigation = useNavigation<ProductsScreenNavigationProp>();
-  const realm = useRealm();
   const [search, setSearch] = useState('');
-  const [loading, setLoading] = useState(false);
-  if (loading || !realm) {
+  const realm = useRealm();
+  const allProducts = useQuery(Product);
+  const filteredProducts = search
+    ? allProducts.filtered('name CONTAINS[c] $0', search)
+    : allProducts;
+
+  if (!allProducts) {
     return (
       <LoadingContainer>
         <ActivityIndicator size="large" color="#007aff" />
@@ -26,15 +30,10 @@ export default function ProductsScreen() {
     );
   }
 
-  // Busca no Realm
-  const allProducts = realm.objects<Product>('Product');
-  const filteredProducts = search
-    ? allProducts.filtered('name CONTAINS[c] $0', search)
-    : allProducts;
-
   return (
     <Container>
       <Header title="Produtos" />
+
       <SearchContainer>
         <Search size={24} color="#333" />
         <SearchInput
@@ -63,7 +62,14 @@ export default function ProductsScreen() {
             />
             <ProductInformation>
               <ProductName numberOfLines={1}>{item.name}</ProductName>
-              <ProductPrice>R$ {item.price.toFixed(2)}</ProductPrice>
+              <ProductCode>Cód: {item.code}</ProductCode>
+              <ProductPrice>
+                R${' '}
+                {item.price.toLocaleString('pt-BR', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </ProductPrice>
             </ProductInformation>
           </ProductCard>
         )}
@@ -73,6 +79,7 @@ export default function ProductsScreen() {
       <AddButton onPress={() => navigation.navigate('CreateProduct')}>
         <AddButtonText>+</AddButtonText>
       </AddButton>
+
       <NavigationBar />
     </Container>
   );
@@ -97,6 +104,11 @@ const SearchContainer = styled.View`
   padding: 00px 14px;
   height: 40px;
   margin-bottom: 16px;
+`;
+const ProductCode = styled.Text`
+  font-size: 12px;
+  color: #666;
+  margin-top: 2px;
 `;
 const LoadingContainer = styled.View`
   flex: 1;

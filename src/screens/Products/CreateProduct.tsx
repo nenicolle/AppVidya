@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Alert, TouchableOpacity, ScrollView, Image } from 'react-native';
 import styled from 'styled-components/native';
 import { useNavigation } from '@react-navigation/native';
@@ -9,11 +9,9 @@ import { CameraIcon } from 'lucide-react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import Header from '../../UI/Header/Header';
 import Realm from 'realm';
-import { realmConfig } from '../../realm/config';
 import { Product } from '../../database/schemas/Product';
-import { getRealm } from '../../database/realmInstance';
+import { useRealm } from '@realm/react';
 
-// Validação
 const schema = yup.object({
   name: yup.string().required('Nome é obrigatório'),
   price: yup
@@ -28,8 +26,9 @@ type FormData = yup.InferType<typeof schema>;
 
 export default function CreateProduct() {
   const navigation = useNavigation<any>();
-  const [imageUri, setImageUri] = React.useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const realm = useRealm(); // ← useRealm() aqui
+  const [imageUri, setImageUri] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     control,
@@ -37,30 +36,32 @@ export default function CreateProduct() {
     formState: { errors },
   } = useForm<FormData>({
     resolver: yupResolver(schema),
-    defaultValues: {
-      name: '',
-      price: undefined,
-      description: '',
-    },
+    defaultValues: { name: '', price: undefined, description: '' },
   });
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = () => {
+    if (isSubmitting) return;
     setIsSubmitting(true);
 
     try {
-      const realm = await getRealm();
+      const lastProduct = realm.objects<Product>('Product').sorted('code', true)[0];
+      const nextNumber = lastProduct ? parseInt(lastProduct.code.split('-')[1]) + 1 : 1;
+      const code = `PROD-${String(nextNumber).padStart(3, '0')}`;
+
       realm.write(() => {
-        realm.create<Product>('Product', {
+        realm.create('Product', {
           _id: new Realm.BSON.ObjectId(),
-          name: data.name,
-          price: data.price,
-          description: data.description,
+          name: control._formValues.name,
+          code,
+          price: control._formValues.price,
+          description: control._formValues.description,
           image: imageUri || undefined,
         });
       });
 
-      Alert.alert('Sucesso', 'Produto cadastrado com sucesso!');
-      navigation.goBack();
+      Alert.alert('Sucesso', 'Produto cadastrado com sucesso!', [
+        { text: 'OK', onPress: () => navigation.goBack() },
+      ]);
     } catch (error) {
       console.error('Erro ao salvar produto:', error);
       Alert.alert('Erro', 'Não foi possível salvar o produto.');
@@ -68,23 +69,18 @@ export default function CreateProduct() {
       setIsSubmitting(false);
     }
   };
+
   const handleUpload = () => {
-    launchImageLibrary(
-      {
-        mediaType: 'photo',
-        quality: 0.8,
-        includeBase64: false,
-      },
-      (response) => {
-        if (response.didCancel) {
-          console.log('Cancelado');
-        } else if (response.errorCode) {
-          Alert.alert('Erro', response.errorMessage || 'Erro ao selecionar imagem');
-        } else if (response.assets?.[0]?.uri) {
-          setImageUri(response.assets[0].uri);
-        }
-      },
-    );
+    launchImageLibrary({ mediaType: 'photo', quality: 0.8, includeBase64: false }, (response) => {
+      if (response.didCancel) return;
+      if (response.errorCode) {
+        Alert.alert('Erro', response.errorMessage || 'Erro ao selecionar imagem');
+        return;
+      }
+      if (response.assets?.[0]?.uri) {
+        setImageUri(response.assets[0].uri);
+      }
+    });
   };
 
   return (
@@ -92,7 +88,6 @@ export default function CreateProduct() {
       <Header title="Cadastro de Produto" showBack />
 
       <ScrollContainer contentContainerStyle={{ paddingBottom: 100 }}>
-        {/* Foto */}
         <PhotoSection>
           <TouchableOpacity onPress={handleUpload}>
             <PhotoPlaceholder>
@@ -109,7 +104,6 @@ export default function CreateProduct() {
           <UploadHint>JPG ou PNG • Máximo 5MB</UploadHint>
         </PhotoSection>
 
-        {/* Formulário */}
         <FormField label="Nome" error={errors.name?.message}>
           <Controller
             control={control}

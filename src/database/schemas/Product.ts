@@ -4,6 +4,7 @@ export class Product extends Realm.Object<Product> {
   _id!: Realm.BSON.ObjectId;
   name!: string;
   price!: number;
+  code!: string;
   image?: string;
   description!: string;
 
@@ -14,6 +15,7 @@ export class Product extends Realm.Object<Product> {
       _id: 'objectId',
       name: 'string',
       price: 'double',
+      code: 'string',
       image: 'string?',
       description: 'string',
     },

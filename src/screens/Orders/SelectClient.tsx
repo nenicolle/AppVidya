@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FlatList } from 'react-native';
+import { FlatList, Image } from 'react-native'; // Adicionado Image
 import styled from 'styled-components/native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -8,6 +8,7 @@ import { Client } from '../../database/schemas/ClientSchema';
 import { CheckCircle, Circle } from 'lucide-react-native';
 import Header from '../../UI/Header/Header';
 import { useQuery } from '@realm/react';
+import { getColorFromId, getInitials } from '../../utils/imageCard';
 
 type SelectClientNavigationProp = NativeStackNavigationProp<RootStackParamList, 'SelectClient'>;
 
@@ -22,7 +23,9 @@ export default function SelectClient() {
 
   const handleSave = () => {
     if (selectedClient) {
-      navigation.navigate('CreateOrder', { client: selectedClient });
+      navigation.navigate('CreateOrder', {
+        clientId: selectedClient._id.toHexString(),
+      });
     }
   };
 
@@ -37,12 +40,29 @@ export default function SelectClient() {
         contentContainerStyle={{ paddingBottom: 120 }}
         renderItem={({ item }) => {
           const isSelected = selectedClient?._id.toHexString() === item._id.toHexString();
+          const hasPhoto = !!item.photoUri;
+
           return (
             <ClientCard onPress={() => handleSelect(item)} activeOpacity={0.8}>
+              <ClientAvatarContainer>
+                {hasPhoto ? (
+                  <ClientImage source={{ uri: item.photoUri }} />
+                ) : (
+                  <Avatar
+                    style={{
+                      backgroundColor: getColorFromId(item._id.toHexString().charCodeAt(0)),
+                    }}
+                  >
+                    <AvatarText>{getInitials(item.name || '??')}</AvatarText>
+                  </Avatar>
+                )}
+              </ClientAvatarContainer>
+
               <ClientInfo>
                 <ClientName>{item.name}</ClientName>
                 <ClientPhone>{item.phone}</ClientPhone>
               </ClientInfo>
+
               {isSelected ? (
                 <CheckCircle size={24} color="#007AFF" />
               ) : (
@@ -74,7 +94,34 @@ const ClientCard = styled.TouchableOpacity`
   padding: 16px;
   flex-direction: row;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
+  gap: 12px;
+`;
+
+const ClientAvatarContainer = styled.View`
+  width: 50px;
+  height: 50px;
+`;
+
+const Avatar = styled.View`
+  width: 50px;
+  height: 50px;
+  border-radius: 15px;
+  justify-content: center;
+  align-items: center;
+`;
+
+const AvatarText = styled.Text`
+  color: #fff;
+  font-weight: bold;
+  font-size: 16px;
+`;
+
+const ClientImage = styled(Image)`
+  width: 50px;
+  height: 50px;
+  border-radius: 15px;
+  background-color: #f0f0f0;
 `;
 
 const ClientInfo = styled.View`

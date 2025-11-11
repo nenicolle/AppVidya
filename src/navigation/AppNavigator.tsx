@@ -1,7 +1,6 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
-import HomeScreen from '../screens/HomeScreen';
 import ProductsScreen from '../screens/Products/ProductsScreen';
 import ProductDetailsScreen from '../screens/Products/ProductDetails';
 import CreateProduct from '../screens/Products/CreateProduct';

@@ -1,134 +1,122 @@
 import React, { useState } from 'react';
-import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, Image, Text, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Header from '../../UI/Header/Header';
 import { Alert } from 'react-native';
+import { Client } from '../../database/schemas/ClientSchema';
+import { Product } from '../../database/schemas/Product';
+import { useRealm, useQuery } from '@realm/react';
+import { Realm } from '@realm/react';
+import { RootStackParamList } from '../../types/navigation';
 
-interface Client {
-  id: string;
-  name: string;
-  cnpj: string;
-}
-interface Product {
-  id: string;
-  name: string;
-  code: string;
-  price: number;
-  image: string;
-}
-interface RouteParams {
-  client?: Client | null;
-}
-
-type NavigationProp = NativeStackNavigationProp<any>;
+type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'CreateOrder'>;
 
 export default function CreateOrder() {
   const navigation = useNavigation<NavigationProp>();
+
   const route = useRoute<any>();
-  const { client } = route.params as RouteParams;
-  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const { clientId } = route.params as { clientId?: string };
+
+  const realm = useRealm();
+  const products = useQuery(Product);
+
+  // Busca o cliente com segurança
+  const client = clientId
+    ? realm.objectForPrimaryKey<Client>('Client', new Realm.BSON.ObjectId(clientId))
+    : null;
+
   const [quantities, setQuantities] = useState<Record<string, number>>({});
-
   const hasSelectedProducts = Object.values(quantities).some((q) => q > 0);
-  const handleSave = async () => {
-    if (!client) {
-      Alert.alert('Cliente não encontrado!');
-      return;
-    }
 
-    const selectedProducts = products
-      .filter((p) => quantities[p.id] && quantities[p.id] > 0)
-      .map((p) => ({
-        id: p.id,
-        name: p.name,
-        code: p.code,
-        price: p.price,
-        quantity: quantities[p.id],
-        subtotal: quantities[p.id] * p.price,
-      }));
-
-    if (selectedProducts.length === 0) {
-      Alert.alert('Selecione pelo menos um produto!');
-      return;
-    }
-    const totalValue = selectedProducts.reduce((acc, item) => acc + item.subtotal, 0);
-
-    const payload = {
-      client: {
-        id: client.id,
-        name: client.name,
-        cnpj: client.cnpj,
-      },
-      products: selectedProducts,
-      totalValue,
-    };
-    console.log('Payload do pedido:', payload);
-    Alert.alert('Pedido montado com sucesso! Veja o console.');
-  };
-
-  const products: Product[] = [
-    {
-      id: '1',
-      name: 'Camiseta',
-      code: 'CAM001',
-      price: 49.9,
-      image: 'https://via.placeholder.com/100',
-    },
-    {
-      id: '2',
-      name: 'Calça Jeans',
-      code: 'JEANS002',
-      price: 189.9,
-      image: 'https://via.placeholder.com/100',
-    },
-    {
-      id: '3',
-      name: 'Tênis',
-      code: 'TENIS003',
-      price: 299.9,
-      image: 'https://via.placeholder.com/100',
-    },
-  ];
-  const updateQty = (id: string, delta: number) => {
-    setQuantities((prev) => ({
-      ...prev,
-      [id]: Math.max(0, (prev[id] || 0) + delta),
-    }));
-  };
-
-  const renderItem = ({ item }: { item: Product }) => (
-    <ProductItem>
-      <ProductImage source={{ uri: item.image }} />
-      <ProductInfo>
-        <ProductName>{item.name}</ProductName>
-        <ProductCode>Cód: {item.code}</ProductCode>
-        <QtyContainer>
-          <QtyButton onPress={() => updateQty(item.id, -1)}>
-            <QtyText>-</QtyText>
-          </QtyButton>
-          <QtyValue>{quantities[item.id] || 0}</QtyValue>
-          <QtyButton onPress={() => updateQty(item.id, 1)}>
-            <QtyText>+</QtyText>
-          </QtyButton>
-        </QtyContainer>
-      </ProductInfo>
-      <ProductPrice>R$ {item.price.toFixed(2)}</ProductPrice>
-    </ProductItem>
-  );
-
-  if (!client) {
+  // Validação precoce: cliente não encontrado
+  if (!clientId || !client) {
     return (
       <Container>
         <Header title="Erro" showBack />
         <ErrorContainer>
-          <ErrorText>Cliente não selecionado.</ErrorText>
-          <ErrorText>Voltando...</ErrorText>
+          <ErrorText>Cliente não encontrado.</ErrorText>
+          <ErrorText>ID inválido ou ausente.</ErrorText>
         </ErrorContainer>
       </Container>
     );
   }
+
+  const handleSave = () => {
+    const selectedItems = products
+      .filter((p) => quantities[p._id.toHexString()] > 0)
+      .map((p) => {
+        const qty = quantities[p._id.toHexString()];
+        return {
+          _id: new Realm.BSON.ObjectId(),
+          product: p,
+          quantity: qty,
+          unitPrice: p.price ?? 0,
+          subtotal: qty * (p.price ?? 0),
+        };
+      });
+
+    if (selectedItems.length === 0) {
+      Alert.alert('Selecione pelo menos um produto!');
+      return;
+    }
+
+    const totalValue = selectedItems.reduce((s, i) => s + i.subtotal, 0);
+    const productCount = selectedItems.reduce((s, i) => s + i.quantity, 0);
+
+    try {
+      realm.write(() => {
+        realm.create('Order', {
+          _id: new Realm.BSON.ObjectId(),
+          client: client,
+          items: selectedItems,
+          totalValue,
+          productCount,
+          status: 'Pendente',
+          createdAt: new Date(),
+        });
+        setQuantities({});
+      });
+
+      Alert.alert('Sucesso', 'Pedido criado com sucesso!', [
+        { text: 'OK', onPress: () => navigation.goBack() },
+      ]);
+    } catch (err: any) {
+      console.error('Erro ao salvar pedido:', err);
+      Alert.alert('Erro', err.message || 'Falha ao salvar o pedido.');
+    }
+  };
+
+  const updateQty = (productId: string, delta: number) => {
+    setQuantities((prev) => ({
+      ...prev,
+      [productId]: Math.max(0, (prev[productId] ?? 0) + delta),
+    }));
+  };
+
+  const renderItem = ({ item }: { item: Product }) => {
+    const pid = item._id.toHexString();
+    return (
+      <ProductItem>
+        <ProductImage source={{ uri: item.image }} />
+        <ProductInfo>
+          <ProductName>{item.name}</ProductName>
+          <ProductCode>Cód: {item.code}</ProductCode>
+          <QtyContainer>
+            <QtyButton onPress={() => updateQty(pid, -1)}>
+              <QtyText>-</QtyText>
+            </QtyButton>
+            <QtyValue>{quantities[pid] ?? 0}</QtyValue>
+            <QtyButton onPress={() => updateQty(pid, 1)}>
+              <QtyText>+</QtyText>
+            </QtyButton>
+          </QtyContainer>
+        </ProductInfo>
+        <ProductPrice>R$ {item.price.toFixed(2)}</ProductPrice>
+      </ProductItem>
+    );
+  };
 
   return (
     <Container>
@@ -142,9 +130,10 @@ export default function CreateOrder() {
 
       <StyledFlatList
         data={products}
-        keyExtractor={(item: Product) => item.id}
+        keyExtractor={(item) => item._id.toHexString()}
         renderItem={renderItem}
       />
+
       <Footer>
         <SaveButton onPress={handleSave} disabled={!hasSelectedProducts}>
           <SaveText>{hasSelectedProducts ? 'Salvar' : 'Selecione algum produto'}</SaveText>
@@ -153,14 +142,12 @@ export default function CreateOrder() {
     </Container>
   );
 }
-
 const ErrorContainer = styled.View`
   flex: 1;
   justify-content: center;
   align-items: center;
   padding: 20px;
 `;
-
 const ErrorText = styled.Text`
   font-size: 16px;
   color: #d32f2f;
@@ -171,7 +158,6 @@ const Container = styled.View`
   flex: 1;
   background: #fff;
 `;
-
 const ClientSection = styled.View`
   padding: 16px;
   background: #f9f9f9;
@@ -191,7 +177,6 @@ const SectionTitle = styled.Text`
   font-weight: 600;
   padding: 16px 16px 8px;
 `;
-
 const StyledFlatList = styled(FlatList).attrs(() => ({
   contentContainerStyle: { flexGrow: 1 },
 }))`` as unknown as typeof FlatList<Product>;
@@ -259,14 +244,12 @@ const Footer = styled.View`
   border-top-width: 1px;
   border-top-color: #eaeaea;
 `;
-
 const SaveButton = styled.TouchableOpacity<{ disabled?: boolean }>`
   background-color: ${(props) => (props.disabled ? '#ccc' : '#007aff')};
   padding: 16px;
   border-radius: 10px;
   align-items: center;
 `;
-
 const SaveText = styled.Text`
   color: #fff;
   font-size: 16px;
